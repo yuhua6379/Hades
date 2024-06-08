@@ -58,22 +58,22 @@ ScreenData.MarketScreen =
 			{
 				-- None
 			},
-			--[[
+
 			{ 
 				BuyName = "OreFSilver", BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 10,
+					MetaCurrency = 1,
 				},
 				Priority = true,
 				PurchaseSound = "/SFX/KeyPickup",
 			},
-			]]
+
 			{ 
 				BuyName = "MetaCardPointsCommon", BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 15,
+					MetaCurrency = 1,
 				},
 				Priority = true, 
 				PurchaseSound = "/SFX/AshRewardDrop",
@@ -83,17 +83,17 @@ ScreenData.MarketScreen =
 				BuyName = "MemPointsCommon", BuyAmount = 5,
 				Cost =
 				{
-					MetaCurrency = 30,
+					MetaCurrency = 1,
 				},
 				Priority = true, 
 				PurchaseSound = "/SFX/Player Sounds/PsycheRewardPickup",
 			},
-			--[[
+	
 			{ 
 				BuyName = "MixerFBoss", BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 80,
+					MetaCurrency = 1,
 				},
 				Priority = true,
 				PurchaseSound = "/SFX/SuperGiftAmbrosiaBottlePickup",
@@ -112,7 +112,7 @@ ScreenData.MarketScreen =
 				BuyName = "OreNBronze", BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 100,
+					MetaCurrency = 1,
 				},
 				Priority = true,
 				PurchaseSound = "/SFX/SuperGemPickup",
@@ -125,27 +125,26 @@ ScreenData.MarketScreen =
 					},
 				},
 			},
-			]]
+			
 			{ 
 				BuyName = "MetaFabric", BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 60,
+					MetaCurrency = 1,
 				},
 				Priority = true, 
 				PurchaseSound = "/Leftovers/Menu Sounds/TalismanRockUpLEGENDARY",
 			},
-			-- Limited Time Trades
-			--[[
+	
+
 			{ 
 				BuyName = "OreFSilver", BuyAmount = 5,
 				Cost =
 				{
-					MetaCurrency = 50,
+					MetaCurrency = 1,
 				},
 				PurchaseSound = "/SFX/KeyPickup",
 			},
-			]]
 
 			{ 
 				BuyName = "CardUpgradePoints",
@@ -160,7 +159,7 @@ ScreenData.MarketScreen =
 				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 80,
+					MetaCurrency = 1,
 				},
 				Priority = true,
 				PurchaseSound = "/Leftovers/Menu Sounds/TalismanPowderUpLEGENDARY",
@@ -179,7 +178,7 @@ ScreenData.MarketScreen =
 				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 800,
+					MetaCurrency = 1,
 				},
 				PurchaseSound = "/Leftovers/Menu Sounds/TalismanPowderUpLEGENDARY",
 			},
@@ -197,7 +196,7 @@ ScreenData.MarketScreen =
 				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 1000,
+					MetaCurrency = 1,
 				},
 				PurchaseSound = "/SFX/TitanBloodPickupSFX",
 			},
@@ -218,7 +217,7 @@ ScreenData.MarketScreen =
 				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 30,
+					MetaCurrency = 1,
 				},
 				PurchaseSound = "/SFX/GiftAmbrosiaBottlePickup",
 			},
@@ -233,7 +232,7 @@ ScreenData.MarketScreen =
 				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 50,
+					MetaCurrency = 1,
 				},
 				PurchaseSound = "/Leftovers/Menu Sounds/TalismanPowderDownLEGENDARY",
 			},
@@ -249,7 +248,7 @@ ScreenData.MarketScreen =
 				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 100,
+					MetaCurrency = 1,
 				},
 				PurchaseSound = "/SFX/SuperGemPickup",
 			},
@@ -264,7 +263,7 @@ ScreenData.MarketScreen =
 				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 500,
+					MetaCurrency = 1,
 				},
 				PurchaseSound = "/SFX/GiftAmbrosiaBottlePickup",
 			},

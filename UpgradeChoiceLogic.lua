@@ -209,6 +209,7 @@ function CreateBoonLootButtons( screen, lootData, reroll )
 			tooltip = "MetaUpgradeRerollBlockedHint"
 		end
 		local color = Color.White
+		CurrentRun.NumRerolls = CurrentRun.NumRerolls + cost
 		if CurrentRun.NumRerolls < cost or cost < 0 then
 			color = Color.CostUnaffordable
 		end
