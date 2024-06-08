@@ -20,6 +20,11 @@ RoomSetData.O =
 		SurfaceShopSpawnChance = 0.25,
 		TargetMetaRewardsRatio = 0.30,
 
+		HarvestPointChances =
+		{
+			0.30,
+		},
+
 		BreakableValueOptions = { MaxHighValueBreakables = 0 },
 
 		TimeChallengeEncounterOptions = { "TimeChallengeO" },
@@ -56,6 +61,13 @@ RoomSetData.O =
 		},
 		WrappingData =
 		{
+		},
+
+		ExitsUnlockedThreadedEvents =
+		{
+			{
+				FunctionName = "ShipsEndOilFires",
+			},
 		},
 
 		EnterVoiceLines =
@@ -459,6 +471,11 @@ RoomSetData.O =
 		},
 		
 		SecretSpawnChance = 0.0,
+
+		HarvestPointChances =
+		{
+			0.35,
+		},
 
 		SkipLastKillPresentation = true,
 		LegalEncounters = { "Shop" },
@@ -961,7 +978,10 @@ RoomSetData.O =
 						--
 					},
 				},
-			},			
+			},
+			{
+				FunctionName = "ShipsEndOilFires",
+			},
 		},
 	},
 

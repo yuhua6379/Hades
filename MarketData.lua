@@ -176,10 +176,10 @@ ScreenData.MarketScreen =
 						Value = 3,
 					},
 				},
-				BuyAmount = 10,
+				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 1,
+					MetaCurrency = 800,
 				},
 				PurchaseSound = "/Leftovers/Menu Sounds/TalismanPowderUpLEGENDARY",
 			},
@@ -194,10 +194,10 @@ ScreenData.MarketScreen =
 						Value = 1,
 					},
 				},
-				BuyAmount = 10,
+				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 1,
+					MetaCurrency = 1000,
 				},
 				PurchaseSound = "/SFX/TitanBloodPickupSFX",
 			},
@@ -215,10 +215,10 @@ ScreenData.MarketScreen =
 			},
 			{ 
 				BuyName = "GiftPoints",
-				BuyAmount = 10,
+				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 1,
+					MetaCurrency = 30,
 				},
 				PurchaseSound = "/SFX/GiftAmbrosiaBottlePickup",
 			},
@@ -230,10 +230,10 @@ ScreenData.MarketScreen =
 						PathTrue = { "GameState", "WorldUpgradesAdded", "WorldUpgradeBathHouse"}
 					},
 				},
-				BuyAmount = 10,
+				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 1,
+					MetaCurrency = 50,
 				},
 				PurchaseSound = "/Leftovers/Menu Sounds/TalismanPowderDownLEGENDARY",
 			},
@@ -246,10 +246,10 @@ ScreenData.MarketScreen =
 						PathTrue = { "GameState", "WorldUpgradesAdded", "WorldUpgradeFishingPoint"}
 					},
 				},
-				BuyAmount = 10,
+				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 1,
+					MetaCurrency = 100,
 				},
 				PurchaseSound = "/SFX/SuperGemPickup",
 			},
@@ -261,10 +261,10 @@ ScreenData.MarketScreen =
 						PathTrue = { "GameState", "WorldUpgradesAdded", "WorldUpgradeTaverna"}
 					},
 				},
-				BuyAmount = 10,
+				BuyAmount = 1,
 				Cost =
 				{
-					MetaCurrency = 1,
+					MetaCurrency = 500,
 				},
 				PurchaseSound = "/SFX/GiftAmbrosiaBottlePickup",
 			},

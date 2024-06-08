@@ -27,8 +27,6 @@ UnitSetData.Chronos =
 		--DeathFx = "CerberusTeleportCloud",
 		DeathAngle = 210,
 
-		BackstabDistance = 265,
-
 		OnHitFlash = { MaxFraction = 0.45 },
 
 		Material = "Organic",
@@ -42,7 +40,6 @@ UnitSetData.Chronos =
 		IgnoreInvincibubbleOnHit = true,
 
 		IgnoreTimeSlowEffects = true,
-
 		AIWakeDelay = 1.00,
 		PreBossAISetupFunctionName = "ChronosBattleStart",
 		DefaultAIData =
@@ -60,7 +57,26 @@ UnitSetData.Chronos =
 
 			"ChronosScytheThrow", "ChronosRush",
 		},
-
+		
+		SetupEvents =
+		{
+			{
+				FunctionName = "OverwriteSelf",
+				Args =
+				{
+					IgnoreTimeSlowEffects = false,
+				},
+				GameStateRequirements =
+				{
+					{
+						PathTrue = { "GameState", "WorldUpgradesAdded", "WorldUpgradeTimeSlowChronosFight" },
+					},
+				},
+			},
+			{
+				FunctionName = "CheckElapsedTimeMultiplierIgnores",
+			},
+		},
 		AIEndHealthThreshold = 0.75,
 		AIStages =
 		{
@@ -75,7 +91,7 @@ UnitSetData.Chronos =
 			-- 1.25
 			{
 				RandomAIFunctionNames = { "AttackerAI" },
-				TransitionFunction = "BossStageTransition",
+				TransitionFunction = "ChronosMinorStageTransition",
 				FireWeapon = "ChronosDefense",
 				AIData =
 				{
@@ -85,7 +101,7 @@ UnitSetData.Chronos =
 			-- 1.5
 			{
 				RandomAIFunctionNames = { "AttackerAI" },
-				TransitionFunction = "BossStageTransition",
+				TransitionFunction = "ChronosMinorStageTransition",
 				FireWeapon = "ChronosDash",
 				UnequipAllWeapons = true,
 				EquipWeapons = {
@@ -101,7 +117,7 @@ UnitSetData.Chronos =
 			-- 1.75
 			{
 				RandomAIFunctionNames = { "AttackerAI" },
-				TransitionFunction = "BossStageTransition",
+				TransitionFunction = "ChronosMinorStageTransition",
 				FireWeapon = "ChronosDefense3",
 				AIData =
 				{
@@ -131,7 +147,7 @@ UnitSetData.Chronos =
 			-- 2.5
 			{
 				RandomAIFunctionNames = { "AttackerAI" },
-				TransitionFunction = "BossStageTransition",
+				TransitionFunction = "ChronosMinorStageTransition",
 				FireWeapon = "ChronosDefense2",
 				SetMapFlags = { 
 					{ FlagName = "ChronosRoomWeapons2" },

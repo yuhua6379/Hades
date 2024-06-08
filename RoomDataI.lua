@@ -174,13 +174,35 @@ RoomSetData.I =
 					UnitName = "NPC_Eris_01",
 					SpawnOnId = 699326,
 					GoalAngle = 320,
+					GiveRandomConsumables =
+					{
+						UpwardForceMin = 1000,
+						UpwardForceMax = 1000,
+						Range = 0,
+						Force = 0,
+						--NotRequiredPickup = true,
+						LootOptions =
+						{
+							{
+								Name = "MetaCurrencyDrop",
+								Overrides =
+								{
+									AddResources =
+									{
+										MetaCurrency = 300,
+									},
+								},
+							},
+						}
+					},
 				},
 				GameStateRequirements =
 				{
+					NamedRequirementsFalse = { "ErisCurseHealthThreshold", },
 					{
 						Path = { "GameState", "CompletedRunsCache" },
 						Comparison = "<=",
-						Value = 9,
+						Value = 7,
 					},
 					{
 						Path = { "CurrentRun", "Hero", "TraitDictionary" },
@@ -429,6 +451,7 @@ RoomSetData.I =
 
 		StoreDataName = "I_WorldShop",
 		SkipShopSecretMusic = true,
+		TimerBlock = "ShopEncounter",
 
 		FamiliarsPreferSpawnPointMovement = true,
 		FrogFamiliarMaxLeapDistance = 800,
@@ -653,7 +676,10 @@ RoomSetData.I =
 		EntranceFunctionName = "RoomEntranceChronos",
 		EntranceFunctionArgs = { LandingTarget = 704921, AngleTowardsIdOnEnd = 609246 },
 		BlockCameraReattach = true,
-		ZoomFraction = 0.75,
+		ZoomFraction = 0.70,
+
+		ToulaFishingTeleportId = 704921,
+		IgnoreFishingCameraClamps = true,
 
 		Ambience = "/Ambience/DemoEndAmbience",
 		UnthreadedEvents =

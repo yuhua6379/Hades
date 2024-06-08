@@ -246,7 +246,6 @@ function OpenShrineScreen( args )
 	end
 
 	screen.KeepOpen = true
-	thread( HandleWASDInput, screen )
 	HandleScreenInput( screen )
 
 end
@@ -612,6 +611,7 @@ function SpawnErisForCurse( source, args )
 	local newUnit = DeepCopyTable( unitData )
 	OverwriteSelf( newUnit, NPCVariantData.ErisCurseGiver )
 	newUnit.ObjectId = SpawnUnit({ Name = unitData.Name, Group = "Standing", DestinationId = args.SpawnOnId })
+	newUnit.GiveRandomConsumables = args.GiveRandomConsumables
 	MapState.RoomRequiredObjects[newUnit.ObjectId] = newUnit
 	SetupUnit( newUnit, CurrentRun )
 	if args.GoalAngle ~= nil then
@@ -640,6 +640,49 @@ function ErisCurseUpdate( trait, args )
 
 	CurrentRun.ErisCurseDamageMultiplier = 1.0 + args.BaseDamageMultiplierAddition + ((args.PerEncounterDamageMultiplierAddition or 0) * encounterAdditions)
 	CurrentRun.ErisCurseDamageMultiplierDisplay = (CurrentRun.ErisCurseDamageMultiplier - 1.0) * 100
+end
+
+function ErisCurseBackCompatSpawnDrops( source, args )
+	local spawnPointIds = ShallowCopyTable( args.SpawnPointIds )
+	for runIndex, run in ipairs( GameState.RunHistory ) do
+		for curseConversationName, curseConversation in pairs( VariantSetData.NPC_Eris_01.ErisCurseGiver.InteractTextLineSets ) do
+			if run.TextLinesRecord[curseConversationName] and not GameState.ErisCurseRewardTaken[runIndex] then
+				local spawnPointId = RemoveRandomValue( spawnPointIds ) or source.ObjectId
+				if runIndex <= 3 then	
+					local giveConsumablesArgs = ShallowCopyTable( args.OceanusRandomConsumables )
+					giveConsumablesArgs.DestinationId = spawnPointId
+					giveConsumablesArgs.AddUnthreadedOnUseEvent =
+					{
+						FunctionName = "ErisCurseRewardTaken",
+						Args = { RunNum = runIndex },
+					}
+					GiveRandomConsumables( giveConsumablesArgs )
+				elseif runIndex <= 7 then
+					local giveConsumablesArgs = ShallowCopyTable( args.FieldsRandomConsumables )
+					giveConsumablesArgs.DestinationId = spawnPointId
+					giveConsumablesArgs.AddUnthreadedOnUseEvent =
+					{
+						FunctionName = "ErisCurseRewardTaken",
+						Args = { RunNum = runIndex },
+					}
+					GiveRandomConsumables( giveConsumablesArgs )
+				else
+					local giveConsumablesArgs = ShallowCopyTable( args.TartarusGiveRandomConsumables )
+					giveConsumablesArgs.DestinationId = spawnPointId
+					giveConsumablesArgs.AddUnthreadedOnUseEvent =
+					{
+						FunctionName = "ErisCurseRewardTaken",
+						Args = { RunNum = runIndex },
+					}
+					GiveRandomConsumables( giveConsumablesArgs )
+				end
+			end
+		end
+	end
+end
+
+function ErisCurseRewardTaken( source, args )
+	GameState.ErisCurseRewardTaken[args.RunNum] = true
 end
 
 function CheckNewTraitManaReserveShrineUpgrade( newTrait, args )
@@ -686,8 +729,13 @@ end
 function CheckBoonSkipShrineUpgrade( source, args )
 	local currentRoom = CurrentRun.CurrentRoom
 	local boonSkipRank = GetNumShrineUpgrades( "BoonSkipShrineUpgrade" )
-	if boonSkipRank > (CurrentRun.BiomeBoonSkips[currentRoom.RoomSetName] or 0) then
-		CurrentRun.BiomeBoonSkips[currentRoom.RoomSetName] = (CurrentRun.BiomeBoonSkips[currentRoom.RoomSetName] or 0) + 1
+	local roomSetName = currentRoom.RoomSetName
+	if currentRoom.UsePreviousRoomSet then
+		local previousRoom = GetPreviousRoom( CurrentRun ) or currentRoom
+		roomSetName = previousRoom.RoomSetName
+	end
+	if boonSkipRank > (CurrentRun.BiomeBoonSkips[roomSetName] or 0) then
+		CurrentRun.BiomeBoonSkips[roomSetName] = (CurrentRun.BiomeBoonSkips[roomSetName] or 0) + 1
 		local consumableId = SpawnObstacle({ Name = "RoomRewardConsolationPrize", DestinationId = args.LootPointId, Group = "Standing", OffsetX = args.LootOffset.X, OffsetY = args.LootOffset.Y })
 		local reward = CreateConsumableItem( consumableId, "RoomRewardConsolationPrize", 0, { IgnoreSounds = currentRoom.SuppressRewardSpawnSounds } )
 		MapState.RoomRequiredObjects[reward.ObjectId] = reward

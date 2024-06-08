@@ -1031,6 +1031,9 @@ function CollectRemainingMercenaries(eventSource, args)
 end
 
 function SetupPauseMenuTakeover( source, args )
+	if args == nil then
+		return
+	end
 	SessionMapState.PauseMenuTakeoverCue = PlayVoiceLines( args.VoiceLines, false, nil, { ReturnOnly = true } )
 	SessionMapState.PauseMenuTakeoverSource = source
 	SessionMapState.PauseMenuTakeoverArgs = args
@@ -1134,28 +1137,26 @@ function CirceRemoveShrineUpgrades( args )
 end
 
 function CircePetMultiplier( args )
-	local upgradeTraits = {}
+	local traitsToIncrease = {}
 	for _, traitData in pairs( CurrentRun.Hero.Traits ) do
 		if traitData.FamiliarTrait then
-			table.insert( upgradeTraits, traitData )
+			if traitData.FamiliarLastStandHealAmount ~= nil then
+				AddLastStand({
+					Name = "LastStandFamiliar",
+					Icon = "ExtraLifeCatFamiliar",
+					InsertAtEnd = true,
+					IncreaseMax = true,
+					HealAmount = GetTotalHeroTraitValue( "FamiliarLastStandHealAmount" )
+				})
+				RecreateLifePips()
+			else
+				table.insert( traitsToIncrease, traitData )
+			end
 		end
 	end
-	for _, traitData in pairs( upgradeTraits ) do
-		if traitData.FamiliarLastStandHealAmount ~= nil then
-			AddLastStand({
-				Name = "LastStandFamiliar",
-				Icon = "ExtraLifeCatFamiliar",
-				InsertAtEnd = true,
-				IncreaseMax = true,
-				HealAmount = GetTotalHeroTraitValue( "FamiliarLastStandHealAmount" )
-			})
-			RecreateLifePips()
-		else
-			IncreaseTraitLevel( traitData, round(( traitData.StackNum or 1 ) * args.BonusMultiplier ))
-		end
+	for _, traitData in pairs( traitsToIncrease ) do
+		IncreaseTraitLevel( traitData, round(( traitData.StackNum or 1 ) * args.BonusMultiplier ))
 	end
-	GameState.FamiliarUses = 2 * (1 + GetFamiliarBonusUses( GameState.EquippedFamiliar ))
-	UpdateFamiliarIconUses()
 end
 
 function CirceHeal( args )

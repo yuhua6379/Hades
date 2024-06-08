@@ -260,8 +260,7 @@ TraitSetData.Chaos =
 				{ 
 					"ChaosWeaponBlessing", "ChaosSpecialBlessing", "ChaosCastBlessing", "ChaosHealthBlessing", 
 					"ChaosRarityBlessing", "ChaosMoneyBlessing", "ChaosLastStandBlessing", "ChaosManaBlessing", 
-					"ChaosManaOverTimeBlessing", "ChaosWeaponBaseBlessing", "ChaosSpecialBaseBlessing",
-					"ChaosExSpeedBlessing", "ChaosElementalBlessing", "ChaosManaCostBlessing",
+					"ChaosManaOverTimeBlessing", "ChaosExSpeedBlessing", "ChaosElementalBlessing", "ChaosManaCostBlessing",
 					"ChaosSpeedBlessing", "ChaosDoorHealBlessing", "ChaosHarvestBlessing",
 					"ChaosOmegaDamageBlessing"
 				},
@@ -369,60 +368,7 @@ TraitSetData.Chaos =
 		
 		},
 	},
-	
-	ChaosWeaponBaseBlessing =
-	{
-		InheritFrom = { "ChaosBlessing" },
-		Icon = "Boon_Chaos_09",
-		CustomName = "ChaosWeaponBaseBlessing_Complete",
-		AddOutgoingDamageModifiers =
-		{
-			ValidWeapons = WeaponSets.HeroPrimaryWeapons,
-			ValidBaseDamageAddition = 
-			{ 
-				BaseMin = 10,
-				BaseMax = 14
-			},
-			ReportValues = 
-			{ 
-				ReportedDamageBonus = "ValidBaseDamageAddition" 
-			},
-		},
-		ExtractValues =
-		{
-			{
-				Key = "ReportedDamageBonus",
-				ExtractAs = "DamageBonus",
-			},
-		}
-	},
-	ChaosSpecialBaseBlessing =
-	{
-		InheritFrom = { "ChaosBlessing" },
-		Icon = "Boon_Chaos_10",
-		CustomName = "ChaosSpecialBaseBlessing_Complete",
-		AddOutgoingDamageModifiers =
-		{
-			ValidWeapons = WeaponSets.HeroSecondaryWeapons,
-			ValidBaseDamageAddition = 
-			{ 
-				BaseMin = 15,
-				BaseMax = 20
-			},
-			ReportValues = 
-			{ 
-				ReportedDamageBonus = "ValidBaseDamageAddition" 
-			},
-		},
-		ExtractValues =
-		{
-			{
-				Key = "ReportedDamageBonus",
-				ExtractAs = "DamageBonus",
-			},
-		}
-	},
-	
+
 	ChaosExSpeedBlessing = 
 	{
 		InheritFrom = { "ChaosBlessing" },
@@ -577,23 +523,19 @@ TraitSetData.Chaos =
 		{
 			Common =
 			{
-				MinMultiplier = 1,
-				MaxMultiplier = 1,
+				Multiplier = 1.0,
 			},
 			Rare =
 			{
-				MinMultiplier = 1.34,
-				MaxMultiplier = 1.34,
+				Multiplier = 4/3,
 			},
 			Epic =
 			{
-				MinMultiplier = 1.67,
-				MaxMultiplier = 1.67,
+				Multiplier = 5/3,
 			},
-			Heroic = 
+			Heroic =
 			{
-				MinMultiplier = 2.0,
-				MaxMultiplier = 2.0,
+				Multiplier = 2,
 			},
 		},
 
@@ -602,17 +544,15 @@ TraitSetData.Chaos =
 			{
 				WeaponNames = { "WeaponSprint" },
 				WeaponProperty = "SelfVelocity",
-				BaseValue = 330,
+				BaseValue = 297,
 				ChangeType = "Add",
-				SourceIsMultiplier = true,
 				ExcludeLinked = true,
 			},
 			{
 				WeaponNames = { "WeaponSprint" },
 				WeaponProperty = "SelfVelocityCap",
-				BaseValue = 375,
+				BaseValue = 133.5,
 				ChangeType = "Add",
-				SourceIsMultiplier = true,
 				ExcludeLinked = true,
 			},
 			{
@@ -625,7 +565,7 @@ TraitSetData.Chaos =
 			{
 				UnitProperty = "Speed",
 				ChangeType = "Multiply",
-				BaseValue = 1.3,
+				BaseValue = 1.15,
 				SourceIsMultiplier = true,
 				ReportValues = { ReportedBaseSpeed = "ChangeValue" },
 			},
@@ -1170,8 +1110,7 @@ TraitSetData.Chaos =
 				{ 
 					"ChaosWeaponBlessing", "ChaosSpecialBlessing", "ChaosCastBlessing", "ChaosHealthBlessing", 
 					"ChaosRarityBlessing", "ChaosMoneyBlessing", "ChaosLastStandBlessing", "ChaosManaBlessing", 
-					"ChaosManaOverTimeBlessing", "ChaosWeaponBaseBlessing", "ChaosSpecialBaseBlessing",
-					"ChaosExSpeedBlessing", "ChaosElementalBlessing", "ChaosManaCostBlessing",
+					"ChaosManaOverTimeBlessing", "ChaosExSpeedBlessing", "ChaosElementalBlessing", "ChaosManaCostBlessing",
 					"ChaosSpeedBlessing", "ChaosDoorHealBlessing", "ChaosHarvestBlessing",
 					"ChaosOmegaDamageBlessing"
 				},

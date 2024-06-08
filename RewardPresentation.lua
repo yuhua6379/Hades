@@ -117,6 +117,10 @@ function CreateDoorRewardPreview( exitDoor, chosenRewardType, chosenLootName, in
 		exitDoor.AdditionalIcons[animName] = doorBIconId
 		SetColor({ Id = doorBIconId, Color = {1.0, 1.0, 1.0, 0}, Duration = 0 })
 		SetColor({ Id = doorBIconId, Color = {0, 0, 0, 1}, Duration = 0.2 })
+
+		if IsHorizontallyFlipped({ Id = exitDoor.ObjectId }) then
+			FlipHorizontal({ Ids = { doorAIconId, doorBIconId } })
+		end
 	else
 		local animName = chosenRewardType
 		local lootData = LootData[chosenRewardType]
@@ -144,6 +148,15 @@ function CreateDoorRewardPreview( exitDoor, chosenRewardType, chosenLootName, in
 				if HasPinWithResource( resourceName ) then
 					table.insert( subIcons, "RoomRewardSubIcon_ForgetMeNot" )
 				end
+			end
+		end
+
+		local existingIconId = exitDoor.AdditionalIcons.RoomRewardSubIcon_ForgetMeNot
+		if existingIconId ~= nil then
+			if Contains( subIcons, "RoomRewardSubIcon_ForgetMeNot" ) then
+				SetAlpha({ Id = existingIconId, Fraction = 1.0, Duration = 0.2 })
+			else
+				SetAlpha({ Id = existingIconId, Fraction = 0.0, Duration = 0.2 })
 			end
 		end
 	end
@@ -211,7 +224,6 @@ function CreateDoorRewardPreview( exitDoor, chosenRewardType, chosenLootName, in
 	if not args.ReUseIds and IsHorizontallyFlipped({ Id = exitDoor.ObjectId }) then
 		local ids = { doorIconId, backingId }
 		FlipHorizontal({ Ids = ids })
-		FlipHorizontal({ Ids = GetAllValues( exitDoor.AdditionalIcons ) })
 	end
 
 	PlaySound({ Id = exitDoor.ObjectId, Name = "/Leftovers/SFX/DoorStateChangeRewardAppearance" })
@@ -226,9 +238,11 @@ function AddDoorInfoIcon( args )
 		iconId = exitDoor.AdditionalIcons[args.Name]
 	else
 		iconId = SpawnObstacle({ Name = "BlankGeoObstacle", Group = args.Group })
+		SetThingProperty({ Property = "AllowDrawableCache", Value = false, DestinationId = iconId })
 		local offsetAngle = 330
 		if IsHorizontallyFlipped({ Id = exitDoor.ObjectId }) then
 			offsetAngle = 30
+			FlipHorizontal({ Id = iconId })
 		end
 		local offset = CalcOffset( math.rad( offsetAngle ), args.IsoOffset )
 		Attach({ Id = iconId, DestinationId = args.DoorIconId, OffsetZ = -100, OffsetX = offset.X, OffsetY = offset.Y })

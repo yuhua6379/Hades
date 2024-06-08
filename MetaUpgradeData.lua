@@ -654,7 +654,7 @@ MetaUpgradeCardData =
 			MetaCardPointsCommon = 10,
 		},
 		TraitName = "SprintShieldMetaUpgrade",
-
+		ActiveWhileDead = true,
 		UpgradeResourceCost = 
 		{
 			{ CardUpgradePoints = 1, },
@@ -1176,6 +1176,7 @@ MetaUpgradeCardData =
 		AutoEquipRequirements = 
 		{
 			MaxDuplicateCount = 2,
+			RequiredMetaUpgradesMin = 1,
 		},
 		TraitName = "DuoRarityBoostMetaUpgrade",
 		CustomTrayText = "DuoRarityBoostMetaUpgrade_Tray",
@@ -1475,6 +1476,7 @@ MetaUpgradeCardData =
 		AutoEquipRequirements = 
 		{
 			RequiredMetaUpgradesMax = 3,
+			RequiredMetaUpgradesMin = 1,
 		},
 
 		UpgradeResourceCost = 
@@ -1998,6 +2000,6 @@ RerollCosts =
 	Shop = 1,
 	SellTrait = 1,
 	Talent = 1,
-	Hammer = 1, -- Disabled
+	Hammer = -1, -- Disabled
 	ReuseIncrement = 1,
 }

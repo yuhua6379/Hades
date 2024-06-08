@@ -32,6 +32,7 @@
 		LastHitAnimation = "HecateLastHit",
 		InvulnerableFx = "Invincibubble_Hecate",
 		ClearChillOnDeath = true,
+		IgnoreCastSlow = true,
 
 		Material = "Organic",
 		HealthBarTextId = "Hecate_Full",
@@ -928,7 +929,7 @@
 				{ Cue = "/VO/HecateField_0109",
 					PreLineThreadedFunctionName = "PlayHecateTauntAnim", PreLineWait = 0.35,
 					PreLineFunctionName = "StartBossRoomMusic",
-					Text = "Well, much as I hate to {#Emph}inconvenience {#Prev}you, I must. Although, that monstrous thing suggests this oughn't take too long..." },
+					Text = "Well, much as I hate to {#Emph}inconvenience {#Prev}you, I must. Although, that monstrous thing suggests this oughtn't take too long..." },
 			},
 			HecateBossAboutLob01 =
 			{

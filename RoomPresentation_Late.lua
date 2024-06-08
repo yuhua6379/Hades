@@ -1605,6 +1605,8 @@ function AnomalyExitPresentation(currentRun, exitDoor)
 
 	RemoveInputBlock({ Name = "AnomalyExitPresentation" })
 	ToggleCombatControl( { "AdvancedTooltip" } , true, "LeaveRoom" )
+	ClearAllControlBlocks()
+	ClearAllMoveBlocks()
 end
 
 function EntranceFromAnomalyPresentation(currentRun, currentRoom, args)
@@ -1903,6 +1905,19 @@ end
 
 function ShipsExitsUnlockedPresentation()
 	thread( PlayVoiceLines, HeroVoiceLines.ShipsCanExitVoiceLines, false )
+end
+
+function ShipsEndOilFires()
+	ExpireProjectiles({ Names = { "OilPuddleFire", "OilPuddleFire02", "OilPuddleFire03", "OilPuddleFire04" } })
+
+	local oilPuddleIds = GetIdsByType({ Names = { "OilPuddle", "OilPuddle02", "OilPuddle03", "OilPuddle04" } })
+	for k, id in pairs(oilPuddleIds) do
+		StopAnimation({ DestinationId = id, Names = { "OilPuddle01Burn", "OilPuddle02Burn", "OilPuddle03Burn", "OilPuddle04Burn", "OilPuddleSparks", "OilPuddleIgniteGlowAmbient", "OilPuddleIgniteGlow" } })
+		if ActiveEnemies[id] ~= nil then
+			ActiveEnemies[id].Lit = false
+		end
+		SetAnimation({ DestinationId = id, Name = GetThingDataValue({ Id = id, Property = "Graphic" }) })
+	end
 end
 
 function ShipsSteeringWheelChoicePresentation( wheel )

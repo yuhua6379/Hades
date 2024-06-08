@@ -113,6 +113,7 @@ ResourceData =
 			Cooldowns =
 			{
 				{ Name = "MelinoeAnyQuipSpeech" },
+				{ Name = "ErisResourceGranted", Time = 8 }
 			},
 			{
 				RandomRemaining = true,
@@ -205,6 +206,7 @@ ResourceData =
 			Cooldowns =
 			{
 				{ Name = "MelinoeAnyQuipSpeech" },
+				{ Name = "ErisResourceGranted", Time = 8 }
 			},
 			{
 				RandomRemaining = true,
@@ -948,6 +950,9 @@ ResourceData =
 				{ Cue = "/VO/Melinoe_2445", Text = "Looks like Eris is back...",
 					GameStateRequirements =
 					{
+						{
+							PathFalse = { "CurrentRun", "UseRecord", "NPC_Eris_01" },
+						},
 						{
 							PathTrue = { "GameState", "UseRecord", "NPC_Eris_01" },
 						},

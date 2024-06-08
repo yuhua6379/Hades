@@ -46,6 +46,7 @@ function PickupWeaponKit( weaponKit )
 	EquipPlayerWeapon( weaponKit, weaponEquipArgs )
 	wait( 0.02 )-- Distribute workload
 	EquipWeaponUpgrade( CurrentRun.Hero )
+	SelectCodexEntry( weaponKit.Name )
 
 	local weaponData = GetWeaponData( CurrentRun.Hero, weaponKit.Name) 
 	RunEventsGeneric( weaponData.StartRoomEvents, weaponData )
@@ -79,7 +80,7 @@ function UseNPC( npc, args, user )
 	end
 
 	if npc.AggroedEnemyUseText ~= nil then
-		if not IsEmpty( RequiredKillEnemies ) or not IsEmpty( MapState.AggroedUnits ) then
+		if not IsEmpty( RequiredKillEnemies ) or IsAggroedUnitBlockingInteract() then
 			thread( InteractBlockedByEnemiesPresentation, npc, nil, user )
 			return
 		end
@@ -168,11 +169,17 @@ function UseNPC( npc, args, user )
 end
 
 function StartedEndVoiceLines( source, args, contextArgs )
-	AddInteractBlock( contextArgs.NPCSource or args.NPCSource, "EndVoiceLinePlaying" )
+	local npcSource = contextArgs.NPCSource or args.NPCSource
+	if not npcSource.AllowInteractDuringEndVoiceLines then
+		AddInteractBlock( npcSource, "EndVoiceLinePlaying" )
+	end
 end
 
 function FinishedEndVoiceLines( source, args, contextArgs )
-	RemoveInteractBlock( contextArgs.NPCSource or args.NPCSource, "EndVoiceLinePlaying" )
+	local npcSource = contextArgs.NPCSource or args.NPCSource
+	if not npcSource.AllowInteractDuringEndVoiceLines then
+		RemoveInteractBlock( contextArgs.NPCSource or args.NPCSource, "EndVoiceLinePlaying" )
+	end
 end
 
 function GetGenusName( source )
@@ -1490,6 +1497,14 @@ function ClearCombatControlBlock( flag )
 	if not IsEmpty( enabledControls ) then
 		ToggleCombatControl( enabledControls, true, flag )
 	end
+end
+
+function ClearAllControlBlocks()
+	SessionState.PlayerControlBlocks = {}
+end
+
+function ClearAllMoveBlocks()
+	SessionState.PlayerMoveBlocks = {}
 end
 
 function TogglePlayerMove( enabled, flag )

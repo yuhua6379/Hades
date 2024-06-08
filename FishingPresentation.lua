@@ -126,18 +126,6 @@ end
 
 function GiftActivityFishingStartPresentation( source, args )
 
-	--[[
-	thread( FullScreenFadeOutAnimation )
-	TimePassesPresentation( source, { SkipAngleTowardTarget = true, IncludeFishingSFX = true, TimeTicks = 16 } )
-	PlaySound({ Name = "/SFX/Menu Sounds/HadesTextDisappearFadeLOCATION" })
-
-	Activate({ Ids = { 585640 } })
-	SetAlpha({ Ids = { 585640 }, Fraction = 0 })
-	SetAlpha({ Ids = { 585640 }, Fraction = 1, Duration = 0.3 })
-
-	FullScreenFadeInAnimation()
-	]]--
-
 	SetAlpha({ Id = ScreenAnchors.DialogueBackgroundId, Fraction = 0.0, Duration = 0.5 })
 
 	thread( PlayVoiceLines, GlobalVoiceLines.AboutToFishVoiceLines, true )
@@ -503,8 +491,10 @@ function FishingEndPresentation( fishData, fishingAnimationPointId, args )
 	--wait( 1.5 )
 	wait( 1.51 )
 	Destroy({ Id = ScreenAnchors.FishingVignette })
-	local cameraClamps = roomData.CameraClamps or GetDefaultClampIds()
-	SetCameraClamp({ Ids = cameraClamps, SoftClamp = roomData.SoftClamp })
+	if not roomData.IgnoreFishingCameraClamps then
+		local cameraClamps = roomData.CameraClamps or GetDefaultClampIds()
+		SetCameraClamp({ Ids = cameraClamps, SoftClamp = roomData.SoftClamp })
+	end
 end
 
 function FishingWayLatePresentation()
@@ -563,10 +553,18 @@ function FamiliarFishingPresentation( fishingPoint )
 		AngleTowardTarget({ Id = familiar.ObjectId, DestinationId = fishingPoint.ObjectId })
 		PlaySound({ Name = "/SFX/Familiars/CatGrumpy", Id = familiar.ObjectId })
 
-		local spawnPointId = GetClosest({ Id = fishingPoint.ObjectId, DestinationNames = "SpawnPoints", RequiredLocationUnblocked = true, })
-		if spawnPointId == 0 then
-			-- fall back to the hero's position if no spawn points exist
-			spawnPointId = CurrentRun.Hero.ObjectId
+		local currentRoom = CurrentHubRoom or CurrentRun.CurrentRoom
+		local roomData = RoomData[currentRoom.Name] or currentRoom
+
+		local spawnPointId = 0
+		if roomData.ToulaFishingTeleportId ~= nil then
+			spawnPointId = roomData.ToulaFishingTeleportId
+		else
+			spawnPointId = GetClosest({ Id = fishingPoint.ObjectId, DestinationNames = "SpawnPoints", RequiredLocationUnblocked = true, })
+			if spawnPointId == 0 then
+				-- fall back to the hero's position if no spawn points exist
+				spawnPointId = CurrentRun.Hero.ObjectId
+			end
 		end
 		Teleport({ Id =  familiar.ObjectId, DestinationId = spawnPointId })
 		CreateAnimation({ Name = "TeleportDisappearSmall", DestinationId = familiar.ObjectId })

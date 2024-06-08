@@ -103,7 +103,6 @@
 	-- Short delay to let animations finish and prevent accidental input
 	wait(0.5)
 	screen.KeepOpen = true
-	thread( HandleWASDInput, screen )
 	HandleScreenInput( screen )
 end
 
@@ -235,6 +234,12 @@ function CreateSpellButtons( screen )
 			-- Silent toolip
 			CreateTextBox({ Id = components[purchaseButtonKey].Id, TextSymbolScale = 0, Text = "TraitQuestItem", Color = Color.Transparent, LuaKey = "TooltipData", LuaValue = traitData, })
 		end
+
+		local frame = ScreenData.UpgradeChoice.Frame
+		frame.X = itemLocationX + ScreenData.UpgradeChoice.IconOffsetX
+		frame.Y = itemLocationY + ScreenData.UpgradeChoice.IconOffsetY
+		frame.Animation = GetTraitFrame( traitData )
+		components[purchaseButtonKey.."Frame"] = CreateScreenComponent( frame )
 
 		local button = components[purchaseButtonKey]
 		button.Screen = screen

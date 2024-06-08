@@ -1254,7 +1254,7 @@ UnitSetData.NPC_Hecate =
 				GameStateRequirements =
 				{
 					{
-						PathTrue = { "GameState", "TextLinesRecord", "ChronosRevealFollowUp" },
+						PathTrue = { "CurrentRun", "TextLinesRecord", "ChronosRevealFollowUp" },
 					},
 					{
 						PathFalse = { "GameState", "TextLinesRecord", "HecateAboutChronosAnomaly01" },
@@ -1300,11 +1300,15 @@ UnitSetData.NPC_Hecate =
 						HasAll = { "ChronosRevealFollowUp", "HecateAboutChronosAnomaly01" },
 					},
 					{
+						PathTrue = { "CurrentRun", "UseRecord", "NPC_Chronos_01" },
+					},
+					{
 						PathFalse = { "GameState", "TextLinesRecord", "HecateAboutChronos01" },
 					},
 					{
 						PathFalse = { "CurrentRun", "RoomsEntered", "I_Boss01" }
 					},
+					MaxRunsSinceAnyTextLines = { TextLines = { "ChronosRevealFollowUp" }, Count = 3 },
 				},
 				OnQueuedFunctionName = "CheckDistanceTriggerThread",
 				OnQueuedFunctionArgs = PresetEventArgs.HecateGreeting,
@@ -2345,7 +2349,7 @@ UnitSetData.NPC_Hecate =
 				{ Cue = "/VO/Hecate_0649",
 					PreLineAnim = "Hecate_Hub_Stern_Start",
 					PostLineAnim = "Hecate_Hub_Stern_End",
-					Text = "I was curious to see if you would consecrate the Altar of Ashes on your own. It ought be further attuned to you as a result; the secrets of the Arcana, nearer to your grasp." },
+					Text = "I was curious to see if you would consecrate the Altar of Ashes on your own. It ought to be further attuned to you as a result; the secrets of the Arcana, nearer to your grasp." },
 				{ Cue = "/VO/Melinoe_3453", UsePlayerSource = true,
 					PreLineAnim = "MelTalkPensive01", PreLineAnimTarget = "Hero",
 					PostLineAnim = "MelinoeIdleWeaponless", PostLineAnimTarget = "Hero",
@@ -2680,7 +2684,7 @@ UnitSetData.NPC_Hecate =
 				{ Cue = "/VO/Melinoe_0146", UsePlayerSource = true,
 					PreLineAnim = "MelTalkExplaining01", PreLineAnimTarget = "Hero",
 					PostLineAnim = "MelinoeIdleWeaponless", PostLineAnimTarget = "Hero",
-					Text = "Headmistress, if I may? What is that you and Master Odysseus are planning? He's always with his charts and diagrams." },
+					Text = "Headmistress, if I may? What is it that you and Master Odysseus are planning? He's always with his charts and diagrams." },
 				{ Cue = "/VO/Hecate_0031",
 					Text = "Odysseus considers our plan of attack. {#Emph}Yours{#Prev}, more specifically. He plots a course from the nearest Underworld entrance to Olympus." },
 				{ Cue = "/VO/Melinoe_0147", UsePlayerSource = true,
@@ -2944,7 +2948,7 @@ UnitSetData.NPC_Hecate =
 				GameStateRequirements =
 				{
 					{
-						PathTrue = { "GameState", "EncountersOccurredCache", "GeneratedAnomalyB" },
+						PathTrue = { "CurrentRun", "EncountersOccurredCache", "GeneratedAnomalyB" },
 					},
 					{
 						PathFalse = { "GameState", "TextLinesRecord", "HecateAboutChronos01" },
@@ -2991,6 +2995,9 @@ UnitSetData.NPC_Hecate =
 					{
 						PathTrue = { "CurrentRun", "EncountersOccurredCache", "GeneratedAnomalyB" },
 					},
+					{
+						PathFalse = { "GameState", "TextLinesRecord", "HecateAboutChronosAnomaly01" },
+					},
 				},
 				OnQueuedFunctionName = "CheckDistanceTriggerThread",
 				OnQueuedFunctionArgs = PresetEventArgs.HecateGreeting,
@@ -3002,6 +3009,16 @@ UnitSetData.NPC_Hecate =
 					Text = "The influence of Chronos is much stronger in Oceanus than here. He attempted to ensnare me in a vision of another time. A field of flame." },
 				{ Cue = "/VO/Hecate_0537",
 					Text = "Yet you were able to elude his grasp. An aspect of your condition we expected would come into play as you pushed closer to our foe. Continue with still-greater caution, nonetheless..." },
+				EndVoiceLines =
+				{
+					{
+						PreLineWait = 0.5,
+						UsePlayerSource = true,
+						RequiredMinElapsedTime = 2,
+						{ Cue = "/VO/Melinoe_2519", Text = "Yes, Headmistress." },
+					},
+				},
+
 			},
 
 			HecateAboutTimeStop01 =
@@ -3678,7 +3695,7 @@ UnitSetData.NPC_Hecate =
 				{ Cue = "/VO/Melinoe_0663", UsePlayerSource = true,
 					PreLineAnim = "MelTalkExplaining01", PreLineAnimTarget = "Hero",
 					PostLineAnim = "MelTalkExplaining01ReturnToIdle", PostLineAnimTarget = "Hero",
-					Text = "Headmistress, if isn't inappropriate, I have a little gift. Seeing as your personal supply ran out a while back?" },
+					Text = "Headmistress, if it isn't inappropriate, I have a little gift. Seeing as your personal supply ran out a while back?" },
 				{ Cue = "/VO/Hecate_0457",
 					Text = "{#Emph}Ah{#Prev}, the hounds shall lap this stuff right up I think! I shall safeguard it for them as a treat. And why don't you hold onto {#Emph}this{#Prev}, in kind?" },
 			},
@@ -4022,7 +4039,7 @@ UnitSetData.NPC_Hecate =
 				{ Cue = "/VO/Melinoe_0667", UsePlayerSource = true,
 					PreLineAnim = "MelTalkPensive01", PreLineAnimTarget = "Hero",
 					PostLineAnim = "MelinoeIdleWeaponless", PostLineAnimTarget = "Hero",
-					Text = "I was thinking of putting these purifying salts to use, Headmistress. Call it a cleansing ritual. Would accompany me?" },
+					Text = "I was thinking of putting these purifying salts to use, Headmistress. Call it a cleansing ritual. Would you accompany me?" },
 				{ Cue = "/VO/Hecate_0241",
 					PortraitExitAnimation = "Portrait_Hec_Default_01_Exit",
 					PostLineRemoveContextArt = true,

@@ -50,11 +50,13 @@
 	wait(0.2)
 
 	screen.KeepOpen = true
-	thread( HandleWASDInput, screen )
 	thread( HandleCardSwapInput, screen )
 	MetaUpgradeCardScreenOpenPresentation( screen )	
 	
-	if CanUpgradeCards() and not GameState.ScreensViewed.CardUpgradeInfoLayout then
+	if CanIncreaseMetaUpgradeCardLimit() and GetCurrentMetaUpgradeLimitLevel() == 0 then
+		OpenGraspLimitScreen( screen )
+		thread( PlayVoiceLines, GlobalVoiceLines.ReachedMemLimitVoiceLines )
+	elseif CanUpgradeCards() and not GameState.ScreensViewed.CardUpgradeInfoLayout then
 		thread( UpgradeModeAvailablePresentation )
 
 		OpenCardUpgradeInfoScreen( screen )
@@ -884,8 +886,18 @@ function NoMetaUpgradeCardsUnlocked()
 	return true
 
 end
-function HasAvailableMetaUpgradeCapacity( screen )
+function ShouldShowMetaUpgradeCapacityHint( screen )
+	-- Ignore if Queen or Judgement are active
+	if ( GameState.MetaUpgradeState.BonusRarity and GameState.MetaUpgradeState.BonusRarity.Equipped ) 
+		or ( GameState.MetaUpgradeState.CardDraw and GameState.MetaUpgradeState.CardDraw.Equipped ) then
+		return false
+	end
 
+	-- Ignore if Sorceress deactivated and you have 16+ grasp
+	if GameState.MetaUpgradeState.ChanneledCast and not GameState.MetaUpgradeState.ChanneledCast.Equipped and GetMaxMetaUpgradeCost() >= 16 then
+		return false
+	end
+	
 	for metaUpgradeName, metaUpgradeData in pairs( GameState.MetaUpgradeState ) do
 		if not metaUpgradeData.Equipped 
 			and metaUpgradeData.Unlocked 
@@ -1020,7 +1032,8 @@ function CloseMetaUpgradeCardScreen( screen, args )
 				exitCanceled = true
 			end
 		end
-		if HasAvailableMetaUpgradeCapacity( screen ) then
+		if ShouldShowMetaUpgradeCapacityHint( screen ) then
+			DebugPrint({Text = " should show metaupgrade capacity hint "})
 			OpenBelowLimitScreen( screen )
 			if not screen.Exit then
 				exitCanceled = true

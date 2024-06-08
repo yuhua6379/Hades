@@ -75,7 +75,6 @@ function OpenWeaponShopScreen( openedFrom, args )
 	thread( WeaponShopScreenOpenFinishedPresentation, screen )
 
 	screen.KeepOpen = true
-	thread( HandleWASDInput, screen )
 	HandleScreenInput( screen )
 	return screen
 
@@ -163,8 +162,9 @@ function WeaponShopScreenDisplayCategory( screen, categoryIndex )
 
 		if item.Icon ~= nil then
 			local iconKey = "Icon"..screen.NumItems
-			components[iconKey] = CreateScreenComponent({ Name = "BlankObstacle", X = itemLocationX, Y = itemLocationY, Scale = item.IconScale or 0.5, Group = "Combat_Menu" })
-			SetAnimation({ DestinationId = components[iconKey].Id , Name = item.Icon })
+			local iconData = TraitData[item.TraitUpgrade or item.Name] or item
+			components[iconKey] = CreateScreenComponent({ Name = "BlankObstacle", X = itemLocationX, Y = itemLocationY, Scale = iconData.IconScale or screen.IconScale, Group = screen.ComponentData.DefaultGroup })
+			SetAnimation({ DestinationId = components[iconKey].Id , Name = iconData.Icon })
 		end
 
 		local format = screen.ItemAvailableAffordableNameFormat
@@ -285,8 +285,9 @@ function WeaponShopScreenDisplayCategory( screen, categoryIndex )
 		
 		if item.Icon ~= nil then
 			local iconKey = "Icon"..screen.NumItems
-			components[iconKey] = CreateScreenComponent({ Name = "BlankObstacle", X = itemLocationX, Y = itemLocationY, Scale = item.IconScale or screen.IconScale, Group = screen.ComponentData.DefaultGroup })
-			SetAnimation({ DestinationId = components[iconKey].Id , Name = item.Icon })
+			local iconData = TraitData[item.TraitUpgrade or item.Name] or item
+			components[iconKey] = CreateScreenComponent({ Name = "BlankObstacle", X = itemLocationX, Y = itemLocationY, Scale = iconData.IconScale or screen.IconScale, Group = screen.ComponentData.DefaultGroup })
+			SetAnimation({ DestinationId = components[iconKey].Id , Name = iconData.Icon })
 		end
 
 		local displayName = item.RePurchaseName or item.HelpTextId or item.Name
@@ -484,10 +485,6 @@ function DoWeaponShopPurchase( screen, button )
 	UpdateAffordabilityStatus()
 end
 
-function WeaponShopScreenControlHotSwap( screen )
-	TeleportCursor({ OffsetX = screen.ItemStartX, OffsetY = screen.ItemStartY })
-end
-
 function WeaponShopScreenSelectCategory( screen, button )
 	if button.CategoryIndex == screen.ActiveCategoryIndex then
 		return
@@ -600,6 +597,9 @@ function WeaponShopScreenHideItems( screen )
 		ModifyTextBox({ Id = screen.Components.InfoBoxStatLineLeft.Id, FadeTarget = 0.0, })
 		ModifyTextBox({ Id = screen.Components.InfoBoxStatLineRight.Id, FadeTarget = 0.0, })
 		ModifyTextBox({ Id = screen.Components.InfoBoxFlavor.Id, FadeTarget = 0.0, })
+
+		SetAlpha({ Id = screen.Components.InfoBoxIcon.Id, Fraction = 0.0, Duration = 0.2 })
+		SetAlpha({ Id = screen.Components.InfoBoxFrame.Id, Fraction = 0.0, Duration = 0.2 })
 	end
 
 end

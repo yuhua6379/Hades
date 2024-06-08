@@ -661,8 +661,6 @@ GameData.RunClearMessageData =
 					"ChaosLastStandBlessing",
 					"ChaosManaBlessing",
 					"ChaosManaOverTimeBlessing",
-					--"ChaosWeaponBaseBlessing",
-					--"ChaosSpecialBaseBlessing",
 					"ChaosExSpeedBlessing",
 					"ChaosElementalBlessing",
 					"ChaosManaCostBlessing",
@@ -993,6 +991,7 @@ ScreenData.RunClear =
 
 		WeaponAxe2 = "WeaponAxe",
 		WeaponAxe3 = "WeaponAxe",
+		ProjectileAxeBlockSpin = "WeaponAxeBlock2",
 		ProjectileAxeBlock2 = "WeaponAxeSpecialSwing",
 
 		ProjectileTorchBall = "WeaponTorch",
@@ -1014,39 +1013,46 @@ ScreenData.RunClear =
 		SpellSummonRanged = "WeaponSpellSummon",
 		
 		-- Boons / Traits
-		BurnEffect = "Burn",
-		HestiaSprintPuddle = "Sprint",
-		ProjectileFireball = "SpecialEX",
-		AphroditeRushProjectile = "Dash",
-		ZeusSprintStrike = "Sprint",
 		ZeusCastStrike = "WeaponCast",
-		ProjectileZeusSpark = "FocusLightningBoon",
-		ArtemisSupportingFire = "SupportingFireBoon",
+		ProjectileCastFireball = "WeaponCast",
+		PoseidonCast = "WeaponCast",
+		WeaponAnywhereCast = "WeaponCast",
+		ApolloCast = "WeaponCast",
+
+		AphroditeRushProjectile = "WeaponBlink",
+		HestiaSprintPuddle = "Sprint",
+		HephSprintBlast = "Sprint",
+		ZeusSprintStrike = "Sprint",
 		PoseidonSprintBlast = "Sprint",
+		DemeterSprintStorm = "Sprint",
+
+		BurnEffect = "Burn",
 		MassiveSlamBlast = "MassiveSlam_Name",
 		PoseidonSplashSplinter = "PoseidonSplash_Name",
+
+		ProjectileFireball = "FireballManaSpecialBoon",
+		ProjectileZeusSpark = "FocusLightningBoon",
+		ArtemisSupportingFire = "SupportingFireBoon",
 		ZeusZeroManaStrike = "ZeusManaBoltBoon",
 		HeraDamageShareProjectile = "DamageShareRetaliateBoon",
 		DelayedKnockbackEffect = "MassiveKnockupBoon",
 		DamageShareDeath = "LinkedDeathDamageBoon",
 		WeaponCastProjectileHades = "HadesCastProjectileBoon",
 		AphroditeBurst = "ManaBurstBoon",
-		WeaponAnywhereCast = "WeaponCast",
-		ApolloCast = "WeaponCast",
-		DemeterSprintStorm = "Sprint",
-		ProjectileCastFireball = "WeaponCast",
-		PoseidonCast = "WeaponCast",
 		BurnNova = "BurnExplodeBoon",
 
 		-- Traps
 		ShadeMercSpiritball = "WorldUpgradeShadeMercs",
 		DestructibleTreeSplinter = "Traps",
 		SteamWallBlast = "Traps",
+		SteamWallTrap = "Traps",
 		SteamTrap = "Traps",
 		SteamTrapFast = "Traps",
 		SteamCubeExplosion = "Traps",
+		SteamCubeFused = "Traps",
 		FireBarrelExplosion = "Traps",
 		BlastCubeExplosion = "Traps",
+		SpikeTrapClockwork = "Traps",
 		BeamTrap = "Traps",
 		RubbleFall = "Traps",
 		FieldsDestructiblePillarDestruction = "Traps",
@@ -1072,11 +1078,15 @@ ScreenData.RunClear =
 		DemeterUpgradeRoomWeapon = "NPC_Demeter_01",
 		AphroditeUpgradeRoomWeapon = "NPC_Aphrodite_01",
 		HephaestusUpgradeRoomWeapon = "NPC_Hephaestus_01",
+
+		-- Bosses
+		HecateCopy = "NPC_Hecate_01",
 	},
 
 	DamageSourceTextOverrides =
 	{
 		WeaponCast = "CastSet",
+		WeaponBlink = "Dash",
 
 		WeaponStaffSwing = "Attack",
 		WeaponStaffSwing5 = "AttackEX",

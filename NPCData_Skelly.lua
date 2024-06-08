@@ -505,7 +505,7 @@
 					Text = "I'd surely not have gone as far without your Keepsake, Commander. Though, why is it known as the {#Emph}Luckier {#Prev}Tooth? Was there another of its kind?" },
 				{ Cue = "/VO/Skelly_0190",
 					Emote = "PortraitEmoteFiredUp",
-					Text = "Oh, no! It is a truly unique artifact procured in my travails. An artifact with which you'll cling to life as might a sailor on a sinking ship." },
+					Text = "Oh, no! It is truly a unique artifact procured in my travails. An artifact with which you'll cling to life as might a sailor on a sinking ship." },
 				EndVoiceLines =
 				{
 					PreLineWait = 0.4,
@@ -1810,7 +1810,7 @@
 					Text = "Indeed. And are the other Gifts just as, {#Emph}erm... {#Prev}detailed? Either way, I'm not so certain I can handle twice let alone three times the glory, when my task is difficult enough as it is..." },
 				{ Cue = "/VO/Skelly_0311",
 					PreLineAnim = "Skelly_Babbling",
-					Text = "{#Emph}Ahh{#Prev}, so then the {#DialogLegendaryFormat}Fear {#Prev}is getting to you. Do not give in to it, young one! Instead, give in to {#DialogLegendaryFormat}Curiosity {#Prev}about those other glorious Gifts! Think of the {#Emph}prestige! {#Prev}Now you can be little scaredy quitter, or {#DialogLegendaryFormat}Night's Champion{#Prev}, which is it gonna be?" },
+					Text = "{#Emph}Ahh{#Prev}, so then the {#DialogLegendaryFormat}Fear {#Prev}is getting to you. Do not give in to it, young one! Instead, give in to {#DialogLegendaryFormat}Curiosity {#Prev}about those other glorious Gifts! Think of the {#Emph}prestige! {#Prev}Now you can be a little scaredy quitter, or {#DialogLegendaryFormat}Night's Champion{#Prev}, which is it gonna be?" },
 				EndVoiceLines =
 				{
 					{
@@ -2575,7 +2575,7 @@
 				},
 				{ Cue = "/VO/Skelly_0371",
 					PreLineAnim = "Skelly_Explaining",
-					Text = "I must not partake in such extravagances! For my disciples are counting on my cleared-eyed counsel and undivided attention. But tell you what I'm gonna save this one for later when I'm off, OK?" },
+					Text = "I must not partake in such extravagances! For my disciples are counting on my clear-eyed counsel and undivided attention. But tell you what I'm gonna save this one for later when I'm off, OK?" },
 				{ Cue = "/VO/Melinoe_3484", UsePlayerSource = true,
 					Text = "What you call an extravagance... it must be nothing compared to the luxuries of my father's House. Yet you never want for anything. Besides the occasional hit or two." },
 				--[[

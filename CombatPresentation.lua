@@ -672,7 +672,7 @@ function PlayerLastStandPresentationStart( args )
 	-- pop the death defiance
 	LostLastStandPresentation()
 	UpdateLifePips()
-	thread( PlayerLastStandProcText )
+	thread( PlayerLastStandProcText, args )
 
 	waitUnmodified( 1.1, RoomThreadName )
 
@@ -790,9 +790,14 @@ function ErisSelfBuffApply( triggerArgs )
 	waitUnmodified( 2.0, RoomThreadName )
 end
 
-function PlayerLastStandProcText()
+function PlayerLastStandProcText( args )
 	waitUnmodified(  0.2 )
-	thread( InCombatText, CurrentRun.Hero.ObjectId, "Hint_ExtraChance", 0.9, { ShadowScale = 0.66, OffsetY = 75 } )
+	if args.HasLastStand or not CurrentRun.Hero.MaxLastStands or CurrentRun.Hero.MaxLastStands == 1 then
+		thread( InCombatText, CurrentRun.Hero.ObjectId, "Hint_ExtraChance", 0.9, { ShadowScale = 0.66, OffsetY = 75 } )	
+	else
+		thread( InCombatText, CurrentRun.Hero.ObjectId, "Hint_LastChance", 0.9, { ShadowScale = 0.66, OffsetY = 75 } )
+		PlaySound({ Name = "/SFX/Menu Sounds/PortraitEmoteFiredUpLASTCHANCE", Delay = 0.5 })
+	end
 end
 
 function PlayerLastStandPresentationEnd()
@@ -1088,7 +1093,7 @@ function PostEnemyKillPresentation( victim, triggerArgs )
 		sourceProjectileData = ProjectileData[triggerArgs.SourceProjectile]
 	end
 
-	if victim.OnKillGlobalVoiceLines ~= nil and currentRoom.Kills[victim.Name] >= (victim.KillsRequiredForVoiceLines or 0) then
+	if victim.OnKillGlobalVoiceLines ~= nil and (currentRoom.Kills[victim.Name] or 0) >= (victim.KillsRequiredForVoiceLines or 0) then
 		thread( PlayVoiceLines, GlobalVoiceLines[victim.OnKillGlobalVoiceLines], true, nil, { Defer = true } )
 	end
 	if victim.OnKillVoiceLines ~= nil then
@@ -2054,26 +2059,28 @@ function DoWeaponSounds( soundData, parentTable, weaponData )
 				if soundDatum.Key ~= nil then
 					soundKey = soundDatum.Key
 				end
-				parentTable.PlayingSounds[soundKey] = soundId
+				parentTable.PlayingSounds[soundId] = soundKey
 			end
 		end
 	end
 end
 
-function StopWeaponSounds(soundEvent, soundData, parentTable )
+function StopWeaponSounds( soundEvent, soundData, parentTable )
 	if soundData == nil or parentTable == nil or parentTable.PlayingSounds == nil then
 		return
 	end
-	for _, soundCategory in pairs(soundData) do
-		for index, soundElement in pairs(soundCategory) do
+	for _, soundCategory in pairs( soundData ) do
+		for index, soundElement in pairs( soundCategory ) do
 			if soundElement.StoppedByLookup ~= nil and soundElement.StoppedByLookup[soundEvent] then
 				local soundKey = soundElement.Name
 				if soundElement.Key ~= nil then
 					soundKey = soundElement.Key
 				end
-				StopSound({ Id = parentTable.PlayingSounds[soundKey], Duration = 0.2 })
-				if parentTable.PlayingSounds[soundKey] then
-					parentTable.PlayingSounds[soundKey] = nil
+				for soundId, playingSoundKey in pairs( ShallowCopyTable( parentTable.PlayingSounds ) ) do
+					if playingSoundKey == soundKey then
+						StopSound({ Id = soundId, Duration = 0.2 })
+						parentTable.PlayingSounds[soundId] = nil
+					end
 				end
 			end
 		end
@@ -2320,6 +2327,7 @@ function LastAttackHold( holdDuration )
 	waitUnmodified(  holdDuration )
 	SetThingProperty({ Property = "ElapsedTimeMultiplier", Value = 1.0, DataValue = false, AllProjectiles = true })
 	SetThingProperty({ Property = "ElapsedTimeMultiplier", Value = 1.0, DataValue = false, DestinationNames = { "HeroTeam" } })
+	CurrentRun.Hero.LastStandTimeMultiplier = nil
 	RemoveInputBlock({ Name = "LastKill" })
 end
 
@@ -2801,27 +2809,23 @@ function ChronosKillPresentation( unit, args )
 
 	ClearPauseMenuTakeover()
 
-	--[[
+	ExpireProjectiles({ ExcludeNames = WeaponSets.ExpireProjectileExcludeProjectileNames, BlockSpawns = true })
 	ClearEffect({ Ids = { victimId, killerId }, All = true, BlockAll = true, })
-	ExpireProjectiles({ Names = { "HadesCast", "HadesAmmoDrop", "HadesAmmoWeapon", "GraspingHands", "HadesTombstoneSpawn", "HadesCastBeam", "HadesCastBeamNoTracking" } })
-	Destroy({ Ids = GetIdsByType({ Name = "HadesBidentReturnPoint" }) })
-	StopAnimation({ DestinationId = CurrentRun.Hero.ObjectId, Name = "HadesReverseDarknessVignetteHold" })
-	SetAlpha({ Ids = GetIds({ Name = "Terrain_Lighting_01" }), Fraction = 1.0, Duration = 1.0 })
-	
-	ToggleControl({ Names = { "AdvancedTooltip", }, Enabled = false })
-
-	local ammoIds = GetIdsByType({ Name = "AmmoPack" })
-	SetObstacleProperty({ Property = "Magnetism", Value = 3000, DestinationIds = ammoIds })
-	SetObstacleProperty({ Property = "MagnetismSpeedMax", Value = CurrentRun.Hero.LeaveRoomAmmoMangetismSpeed, DestinationIds = ammoIds })
-	StopAnimation({ DestinationIds = ammoIds, Name = "AmmoReturnTimer" })
-	]]--
+	if not IsEmpty( unit.StopAnimationsOnHitStun ) then -- since hit stun isn't applied on death
+		StopAnimation({ Names = unit.StopAnimationsOnHitStun, DestinationId = unit.ObjectId, PreventChain = true })
+		if unit.FxTargetIdsUsed ~= nil then
+			for id, v in pairs( unit.FxTargetIdsUsed ) do
+				StopAnimation({ Names = unit.StopAnimationsOnHitStun, DestinationId = id, PreventChain = true })
+			end
+		end
+	end
 
 	SetUnitInvulnerable( unit )
 	thread( LastKillPresentation, unit )
 	SetPlayerInvulnerable( "ChronosKillPresentation" )
 	AddInputBlock({ Name = "ChronosKillPresentation" })
 	AddTimerBlock( CurrentRun, "ChronosKillPresentation" )
-
+	CurrentRun.CurrentRoom.Encounter.BossKillPresentation = true
 	if IsScreenOpen("Codex") then
 		CloseCodexScreen()
 	end
@@ -2852,8 +2856,9 @@ function ChronosKillPresentation( unit, args )
 	SetCameraClamp({ Ids = GetIds({ Name = "CameraClamps" }), SoftClamp = 0.75 })
 
 	thread( PlayVoiceLines, unit.DefeatedVoiceLines, true, unit )
+	Destroy({ Ids = GetIds({ Name = "SpawnPointsPhase2" }) })
 	if MapState.FamiliarUnit ~= nil then
-		Teleport({ Id = MapState.FamiliarUnit.ObjectId, DestinationId = 645916 })
+		Teleport({ Id = MapState.FamiliarUnit.ObjectId, DestinationId = 713401 })
 	end
 
 	local chronosRemains = DeepCopyTable( ObstacleData.ChronosRemains )
@@ -2873,8 +2878,10 @@ function ChronosKillPresentation( unit, args )
 	wait( 2.0 )
 
 	RemoveInputBlock({ Name = "ChronosKillPresentation" })
+	CurrentRun.CurrentRoom.Encounter.BossKillPresentation = false
 	
 	OpenRunClearScreen()
+	ClearCameraClamp({ LerpTime = 1.0 }) -- the map bounds are more restrictive during the fight
 
 end
 
@@ -2898,9 +2905,9 @@ function ChronosRemainsLeaveTriggerPresentation( source, args )
 end
 
 function ChronosPostCombatReload( room, args )
-
 	Destroy({ Ids = GetIds({ Name = "ChronosDeathDelete" }) })
 	Destroy({ Ids = GetIds({ Name = "ChronosFightStartDelete" }) })
+	ClearCameraClamp({ LerpTime = 1.0 }) -- the map bounds are more restrictive during the fight
 end
 
 function ClearShadeWeapons()
@@ -3937,12 +3944,16 @@ end
 
 function EquipPlayerToolPresentation( toolKit )
 	wait( 0.02 )
-	PlaySound({ Name = "/SFX/Player Sounds/ToolEquip", Id = toolKit.ObjectId })
+	-- PlaySound({ Name = "/SFX/Player Sounds/ToolEquip", Id = toolKit.ObjectId })
 	thread( PlayVoiceLines, toolKit.EquipVoiceLines, false )
 
+	-- CreateAnimation({ Name = "ItemGet_Tool", DestinationId = CurrentRun.Hero.ObjectId })
+	-- AngleTowardTarget({ Id = CurrentRun.Hero.ObjectId, DestinationId = toolKit.ObjectId })
+	-- SetAnimation({ Name = "MelinoeSpellFire", DestinationId = CurrentRun.Hero.ObjectId })
+
 	CreateAnimation({ Name = "ItemGet_Tool", DestinationId = CurrentRun.Hero.ObjectId })
-	AngleTowardTarget({ Id = CurrentRun.Hero.ObjectId, DestinationId = toolKit.ObjectId })
-	SetAnimation({ Name = "MelinoeSpellFire", DestinationId = CurrentRun.Hero.ObjectId })
+	PlaySound({ Name = "/Leftovers/World Sounds/Caravan Interior/FloatingRockInteract", Id = CurrentRun.Hero.ObjectId })
+
 	thread( DoRumble, { { ScreenPreWait = 0.02, RightFraction = 0.17, Duration = 0.2 }, } )
 
 	Shake({ Id = toolKit.ObjectId, Distance = 2, Speed = 100, Duration = 0.3, FalloffSpeed = 3000 })
@@ -4235,6 +4246,10 @@ function PolymorphApplyPresentation( triggerArgs, args )
 			CreateAnimation({ Name = animName, DestinationId =  triggerArgs.triggeredById })
 		end
 
+		if PolymorphPresentationData.DisableAnimFreeze then
+			SetThingProperty({ Property = "AnimFreeze", Value = false, DestinationId = victim.ObjectId, DataValue = false })
+		end
+
 		local anim = nil
 		for i, propertyChange in ipairs( PolymorphPresentationData.ThingProperties ) do
 			for key, value in pairs( propertyChange ) do
@@ -4288,7 +4303,11 @@ function PolymorphApplyPresentation( triggerArgs, args )
 			if value == "nil" then
 				value = nil
 			end
-			SetLifeProperty({ Property = key, Value = value, DestinationId = victim.ObjectId })
+			local dataValue = true
+			if key == "InvulnerableCoverage" then
+				dataValue = false
+			end
+			SetLifeProperty({ Property = key, Value = value, DestinationId = victim.ObjectId, DataValue = dataValue })
 		end
 		if args ~= nil and args.BossPolymorph then
 			AdjustZoom({ Fraction = 1.05, LerpTime = 0.1, Duration = 99999 })
@@ -4352,7 +4371,11 @@ function PolymorphClearPresentation( triggerArgs, args )
 		SetUnitProperty({ Property = key, Value = victim["PrePolymorph"..key], DestinationId = victim.ObjectId })
 	end
 	for key, value in pairs( PolymorphPresentationData.LifeProperties ) do
-		SetLifeProperty({ Property = key, Value = victim["PrePolymorph"..key], DestinationId = victim.ObjectId })
+		local dataValue = true
+		if key == "InvulnerableCoverage" then
+			dataValue = false
+		end
+		SetLifeProperty({ Property = key, Value = victim["PrePolymorph"..key], DestinationId = victim.ObjectId, DataValue = dataValue })
 	end
 
 	if args ~= nil and args.BossPolymorph and CurrentRun.CurrentRoom.ZoomFraction then

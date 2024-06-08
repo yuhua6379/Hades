@@ -249,6 +249,7 @@ OverwriteTableKeys( WeaponData,
 			BackstabDistance = 150,
 		},
 		ManaCost = 10,
+		HideChargeDuration = 0.2,
 
 		DefaultKnockbackForce = 880,
 		DefaultKnockbackScale = 1.1,
@@ -313,10 +314,10 @@ OverwriteTableKeys( WeaponData,
 		},
 		ChargeWeaponStages = 
 		{
-				{ ManaCost = 6, WeaponProperties = { NumProjectiles = 2, AdditionalProjectileWaveChance = 0}, Wait = 0.32, HideStageReachedFx = true, ChannelSlowEventOnEnter = true },
-				{ ManaCost = 9, WeaponProperties = { NumProjectiles = 3, AdditionalProjectileWaveChance = 0}, Wait = 0.14, HideStageReachedFx = true, },
-				{ ManaCost = 12, WeaponProperties = { NumProjectiles = 4, AdditionalProjectileWaveChance = 0}, Wait = 0.14, HideStageReachedFx = true, },
-				{ ManaCost = 15, WeaponProperties = { NumProjectiles = 5, AdditionalProjectileWaveChance = 0}, Wait = 0.14, },
+				{ ManaCost = 6, WeaponProperties = { NumProjectiles = 2, AdditionalProjectileWaveChance = 0}, ApplyEffects = { "WeaponDaggerThrowEXDisable", "WeaponDaggerThrowEXDisableCancellable", "WeaponDaggerThrowEXDisableMoveHold" }, Wait = 0.32, HideStageReachedFx = true, ChannelSlowEventOnEnter = true },
+				{ ManaCost = 9, WeaponProperties = { NumProjectiles = 3, AdditionalProjectileWaveChance = 0}, ApplyEffects = { "WeaponDaggerThrowEXDisable", "WeaponDaggerThrowEXDisableCancellable", "WeaponDaggerThrowEXDisableMoveHold" }, Wait = 0.14, HideStageReachedFx = true, },
+				{ ManaCost = 12, WeaponProperties = { NumProjectiles = 4, AdditionalProjectileWaveChance = 0}, ApplyEffects = { "WeaponDaggerThrowEXDisable", "WeaponDaggerThrowEXDisableCancellable", "WeaponDaggerThrowEXDisableMoveHold" }, Wait = 0.14, HideStageReachedFx = true, },
+				{ ManaCost = 15, WeaponProperties = { NumProjectiles = 5, AdditionalProjectileWaveChance = 0}, ApplyEffects = { "WeaponDaggerThrowEXDisable", "WeaponDaggerThrowEXDisableCancellable", "WeaponDaggerThrowEXDisableMoveHold" }, Wait = 0.14, },
 		},
 		CauseImpactReaction = true,
 		RushOverride = true,
@@ -327,11 +328,11 @@ OverwriteTableKeys( WeaponData,
 
 		SkipAttackNotReadySounds = true,
 
-		HitSimSlowCooldown = 0.2,
+		HitSimSlowCooldown = 0.3,
 		HitSimSlowParameters =
 		{
 			{ ScreenPreWait = 0.06, Fraction = 0.1, LerpTime = 0 },
-			{ ScreenPreWait = 0.02, Fraction = 1.0, LerpTime = 0.07 },
+			{ ScreenPreWait = 0.04, Fraction = 1.0, LerpTime = 0.07 },
 		},
 
 		FireRumbleParameters =

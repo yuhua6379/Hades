@@ -372,7 +372,7 @@ function PolymorphCopyStatus( victim, functionArgs, triggerArgs )
 	end
 	local activeCurses = {}
 	for i, enemy in pairs(ActiveEnemies) do
-		if enemy ~= victim then
+		if enemy ~= victim and not enemy.SkipModifiers and enemy.ActiveEffects then
 			for effectName, effectStacks in pairs(enemy.ActiveEffects) do
 				if functionArgs.ValidStatusNames[effectName] then
 					activeCurses[effectName] = {}
@@ -669,6 +669,11 @@ function SpellSummon( triggerArgs, weaponData )
 		end
 	end
 
+	if CurrentRun.CurrentRoom.Encounter ~= nil and CurrentRun.CurrentRoom.Encounter.ActiveEnemyCap ~= nil then
+		local activeCapWeight = newEnemy.ActiveCapWeight or 1
+		CurrentRun.CurrentRoom.Encounter.ActiveEnemyCap = math.min(ConstantsData.MaxActiveEnemyCount, CurrentRun.CurrentRoom.Encounter.ActiveEnemyCap + activeCapWeight)
+	end
+
 	MapState.SpellSummons = MapState.SpellSummons or {}
 	table.insert( MapState.SpellSummons , newEnemy )
 	if TableLength( MapState.SpellSummons ) > weaponData.MaxSummons then
@@ -741,6 +746,9 @@ function StartSpellSlow( unit, weaponData, args, triggerArgs )
 			args.Modifier = timeSlow
 			args.Force = true
 		end
+	end	
+	if not GameState.Flags.UsedSlowAgainstChronos and CurrentRun.BossHealthBarRecord.Chronos then
+		GameState.Flags.UsedSlowAgainstChronos = true
 	end
 	StartWeaponSlowMotion( triggerArgs, weaponData, args ) 
 end
@@ -953,13 +961,22 @@ function SpellTransform( user, weaponData, functionArgs, triggerArgs )
 	MapState.TransformArgs = {}
 	MapState.TransformArgs.FunctionArgs = ShallowCopyTable( functionArgs )
 	MapState.TransformArgs.Vfx = functionArgs.Vfx
-	EquipWeapon({ DestinationId = CurrentRun.Hero.ObjectId, Names = functionArgs.TransformWeapons })
+	for _, weaponName in pairs( functionArgs.TransformWeapons ) do
+		SetWeaponProperty({ WeaponName = weaponName, DestinationId = CurrentRun.Hero.ObjectId, Property = "Enabled", Value = true })
+	end
+	EndAllControlSwaps({ DestinationId = CurrentRun.Hero.ObjectId })
+	
+	for i, weaponName in pairs(GetHeroTraitValues("ReplaceMeleeWeapon")) do
+		SetWeaponProperty({ WeaponName = weaponName, DestinationId = CurrentRun.Hero.ObjectId, Property = "Enabled", Value = false })
+		SessionMapState.BlockWeaponFailedToFire[weaponName] = true
+	end
 	for weaponName in pairs( CurrentRun.Hero.Weapons ) do
-		if weaponName ~= "WeaponCast" and weaponName ~= "WeaponSprint" and weaponName ~= "WeaponBlink" then
+		if weaponName ~= "WeaponCast" and weaponName ~= "WeaponSprint" then
 			SetWeaponProperty({ WeaponName = weaponName, DestinationId = CurrentRun.Hero.ObjectId, Property = "Enabled", Value = false })
 			SessionMapState.BlockWeaponFailedToFire[weaponName] = true
 		end
 	end
+	SwapWeapon({ Name = "WeaponBlink", SwapWeaponName = "WeaponTransformBlink", DestinationId = CurrentRun.Hero.ObjectId, StompOriginalWeapon = true })
 	local baseThingProperties = {}
 	for propertyName, propertyValue in pairs( functionArgs.ThingProperties or {} ) do
 		baseThingProperties[propertyName] = GetThingDataValue({ Property = propertyName, Id = CurrentRun.Hero.ObjectId  })
@@ -1010,14 +1027,25 @@ function EndSpellTransform( )
 	if not MapState.TransformArgs then
 		return
 	end
+	ClearEffect({ Id = CurrentRun.Hero.ObjectId, Name = "WeaponCastAimSlow" })
 	EndRamWeapons({ Id = CurrentRun.Hero.ObjectId })
-	UnequipWeapon({ DestinationId = CurrentRun.Hero.ObjectId, Names = MapState.TransformArgs.FunctionArgs.TransformWeapons, IncludeBundled = false })
+	for _, weaponName in pairs( MapState.TransformArgs.FunctionArgs.TransformWeapons ) do
+		SetWeaponProperty({ WeaponName = weaponName, DestinationId = CurrentRun.Hero.ObjectId, Property = "Enabled", Value = false })
+		RunWeaponMethod({ Id = CurrentRun.Hero.ObjectId, Weapon = weaponName, Method = "cancelCharge" })
+	end
+
+	SwapWeapon({ Name = "WeaponTransformBlink", SwapWeaponName = "WeaponBlink", DestinationId = CurrentRun.Hero.ObjectId, StompOriginalWeapon = true })
 	for weaponName in pairs( CurrentRun.Hero.Weapons ) do
 		if not MapState.HostilePolymorph then
 			SetWeaponProperty({ WeaponName = weaponName, DestinationId = CurrentRun.Hero.ObjectId, Property = "Enabled", Value = true })
 		end
 		SessionMapState.BlockWeaponFailedToFire[weaponName] = nil
 	end
+	for i, weaponName in pairs(GetHeroTraitValues("ReplaceMeleeWeapon")) do
+		SetWeaponProperty({ WeaponName = weaponName, DestinationId = CurrentRun.Hero.ObjectId, Property = "Enabled", Value = true })
+		SessionMapState.BlockWeaponFailedToFire[weaponName] = nil
+	end
+	
 	if MapState.TransformArgs.Vfx then
 		StopAnimation({ Name = MapState.TransformArgs.Vfx, DestinationId = CurrentRun.Hero.ObjectId })
 	end

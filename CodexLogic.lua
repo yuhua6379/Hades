@@ -127,11 +127,23 @@ function SelectNearbyUnlockedEntry()
 
 	local nearbyId = GetClosest({ Id = CurrentRun.Hero.ObjectId, DestinationNames = { "NPCs", "ConsumableItems", "Loot", "EnemyTeam" }, Distance = 600 })
 	local nearbyGenusName = nil
-	if nearbyId ~= nil and ActiveEnemies[nearbyId] ~= nil then
-		nearbyGenusName = ActiveEnemies[nearbyId].GenusName
+	if nearbyId ~= nil then
+		if ActiveEnemies[nearbyId] ~= nil then
+			nearbyGenusName = ActiveEnemies[nearbyId].GenusName
+		elseif MapState.ActiveObstacles[nearbyId] ~= nil then
+			nearbyGenusName = MapState.ActiveObstacles[nearbyId].GenusName
+		end
 	end
 
 	local nearbyName = nearbyGenusName or GetName({ Id = nearbyId })
+	if nearbyName == "WeaponUpgrade" then
+		for weaponName, weaponData in pairs( CurrentRun.Hero.Weapons ) do
+			if CodexData.Weapons.Entries[weaponName] then
+				nearbyName = weaponName
+				break
+			end
+		end
+	end
 	if OnlyBoonScreenOpen() and CurrentLootData then
 		nearbyName = CurrentLootData.Name
 	end
@@ -139,7 +151,7 @@ function SelectNearbyUnlockedEntry()
 		for chapterName, chapterData in pairs( CodexData ) do
 			for entryName, entryData in pairs( chapterData.Entries ) do
 				if entryName == nearbyName then
-					for i, subEntryData in ipairs( entryData ) do
+					for i, subEntryData in ipairs( entryData.Entries ) do
 						if subEntryData.UnlockGameStateRequirements ~= nil and IsGameStateEligible( CurrentRun, subEntryData.UnlockGameStateRequirements ) then
 							CodexStatus.SelectedChapterName = chapterName
 							CodexStatus.SelectedEntryNames[chapterName] = nearbyName
@@ -199,7 +211,6 @@ function OpenCodexScreen()
 	screen.KeepOpen = true
 	screen.AllowInput = true
 	wait( 0.1 )
-	thread( HandleWASDInput, screen )
 	HandleScreenInput( screen )
 
 end
@@ -769,7 +780,7 @@ function CanOpenCodex()
 	end
 
 	if not CurrentRun.Hero.IsDead then
-		if not CurrentRun.CurrentRoom.AllowInventoryInCombat and ( IsCombatEncounterActive( CurrentRun, { IgnoreMainEncounter = CurrentRun.CurrentRoom.IgnoreMainEncounterForInventory } ) or not IsEmpty( RequiredKillEnemies ) or not IsEmpty( MapState.AggroedUnits ) ) then
+		if not CurrentRun.CurrentRoom.AllowInventoryInCombat and ( IsCombatEncounterActive( CurrentRun, { IgnoreMainEncounter = CurrentRun.CurrentRoom.IgnoreMainEncounterForInventory } ) or not IsEmpty( RequiredKillEnemies ) or IsAggroedUnitBlockingInteract() ) then
 			return false
 		end
 		if CurrentRun.CurrentRoom.StartedChallengeEncounter and not CurrentRun.CurrentRoom.ChallengeEncounter.Completed then

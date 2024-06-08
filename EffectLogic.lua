@@ -328,6 +328,10 @@ function PolyphemusPlayerGrabClear( triggerArgs )
 	MapState.HostilePolymorph = false
 	PlaySound({ Name = "/VO/MelinoeEmotes/EmoteHurt", Id = triggerArgs.triggeredById })
 	PolyphemusPlayerGrabClearPresentation( triggerArgs, { } )
+	if CurrentRun.Hero.Weapons.WeaponLob then
+		UpdateWeaponAmmo( "WeaponLob", 0 )
+	end
+	UpdateWeaponMana()
 end
 
 function ZeusRepeatedStun( unit )
@@ -385,12 +389,12 @@ end
 
 function OmegaBuffApply( triggerArgs )
 	if not triggerArgs.Reapplied then
-	DebugObject = triggerArgs
 		AddOutgoingDamageModifier( CurrentRun.Hero, 
 		{
 			Name = "OmegaBuff",
 			ExMultiplier = triggerArgs.Modifier,
 			WeaponNames = WeaponSets.HeroAllWeapons,
+			Temporary = true,
 		})
 	end
 end
@@ -404,11 +408,18 @@ function ClearCastApply( triggerArgs )
 	if not triggerArgs.Reapplied and victim == CurrentRun.Hero then
 		MapState.ClearCastWeapons = ToLookup(AddLinkedWeapons( WeaponSets.HeroAllWeapons ))
 		UpdateWeaponMana()
-		local clearCastSpeed = EffectData.ClearCast.ExChargeMultiplier
-		SetWeaponProperty({ WeaponName = "WeaponStaffSwing5", DestinationId = victim.ObjectId, Property = "ChargeTime", Value = clearCastSpeed, ValueChangeType = "Multiply" })
-		SetWeaponProperty({ WeaponName = "WeaponStaffSwing5", DestinationId = victim.ObjectId, Property = "ChargeTimeRemaining", Value = clearCastSpeed, ValueChangeType = "Multiply", DataValue = false })
-		SetWeaponProperty({ WeaponName = "WeaponCastArm", DestinationId = victim.ObjectId, Property = "ChargeTime", Value = clearCastSpeed, ValueChangeType = "Multiply" })
-		SetWeaponProperty({ WeaponName = "WeaponCastArm", DestinationId = victim.ObjectId, Property = "ChargeTimeRemaining", Value = clearCastSpeed, ValueChangeType = "Multiply", DataValue = false })
+		local effectData = EffectData[triggerArgs.EffectName]
+		local bonus = triggerArgs.Amount
+		if GetTotalHeroTraitValue("ClearCastDamageMultiplierOverride", {IsMultiplier = true}) then
+			bonus = GetTotalHeroTraitValue("ClearCastDamageMultiplierOverride", {IsMultiplier = true})
+		end
+		AddOutgoingDamageModifier( CurrentRun.Hero, 
+		{
+			Name = triggerArgs.EffectName,
+			ExMultiplier = bonus,
+			WeaponNames = WeaponSets.HeroAllWeapons,
+			Temporary = true,
+		})
 	end
 end
 
@@ -417,14 +428,8 @@ function ClearCastClear( triggerArgs )
 	if victim == CurrentRun.Hero then
 		MapState.ClearCastWeapons = nil
 		UpdateWeaponMana()
-		local clearCastSpeed = EffectData.ClearCast.ExChargeMultiplier
-		
 		thread( EndClearCastPresentation )
-		SetWeaponProperty({ WeaponName = "WeaponStaffSwing5", DestinationId = victim.ObjectId, Property = "ChargeTime", Value = 1/clearCastSpeed, ValueChangeType = "Multiply" })
-		SetWeaponProperty({ WeaponName = "WeaponStaffSwing5", DestinationId = victim.ObjectId, Property = "ChargeTimeRemaining", Value = 1/clearCastSpeed, ValueChangeType = "Multiply", DataValue = false })
-		SetWeaponProperty({ WeaponName = "WeaponCastArm", DestinationId = victim.ObjectId, Property = "ChargeTime", Value = 1/clearCastSpeed, ValueChangeType = "Multiply" })
-		SetWeaponProperty({ WeaponName = "WeaponCastArm", DestinationId = victim.ObjectId, Property = "ChargeTimeRemaining", Value = 1/clearCastSpeed, ValueChangeType = "Multiply", DataValue = false })
-
+		RemoveOutgoingDamageModifier( CurrentRun.Hero, triggerArgs.EffectName )
 		if ScreenAnchors.StaffUIChargeAmount then
 			SetAnimationFrameTarget({ Name = "StaffReloadTimer", DestinationId = ScreenAnchors.StaffUIChargeAmount, Fraction = 0, Instant = true })
 		end
@@ -535,6 +540,61 @@ function MiasmaSlowClear( triggerArgs )
 	end
 end
 
+function StaffSpecialTriggerLockApply( triggerArgs )
+	AddBlinkLockLayer( "Disable"..triggerArgs.EffectName )
+	AddSpecialLockLayer( "WeaponStaffBall", "Disable"..triggerArgs.EffectName )
+end
+
+function StaffSpecialTriggerLockClear( triggerArgs )
+	RemoveBlinkLockLayer( "Disable"..triggerArgs.EffectName )
+	HandleSpecialTriggerLockClear( "WeaponStaffBall", triggerArgs )
+end
+
+function DaggerSpecialTriggerLockApply( triggerArgs )
+	AddBlinkLockLayer( "Disable"..triggerArgs.EffectName )
+	AddSpecialLockLayer( "WeaponDaggerThrow", "Disable"..triggerArgs.EffectName )
+end
+
+function DaggerSpecialTriggerLockClear( triggerArgs )
+	RemoveBlinkLockLayer( "Disable"..triggerArgs.EffectName )
+	HandleSpecialTriggerLockClear( "WeaponDaggerThrow", triggerArgs )
+end
+
+function TorchSpecialTriggerLockApply( triggerArgs )
+	AddBlinkLockLayer( "Disable"..triggerArgs.EffectName )
+	AddSpecialLockLayer( "WeaponTorchSpecial", "Disable"..triggerArgs.EffectName )
+end
+
+function TorchSpecialTriggerLockClear( triggerArgs )
+	RemoveBlinkLockLayer( "Disable"..triggerArgs.EffectName )
+	HandleSpecialTriggerLockClear( "WeaponTorchSpecial", triggerArgs )
+end
+
+function HandleSpecialTriggerLockClear( weaponName, triggerArgs )
+	local chargeTime = GetWeaponDataValue({ Id = CurrentRun.Hero.ObjectId, WeaponName = weaponName, Property = "ChargeTime" }) or 0
+	local minCharge = GetWeaponDataValue({ Id = CurrentRun.Hero.ObjectId, WeaponName = weaponName, Property = "MinChargeToFire" }) or 0
+	local cooldown = GetWeaponDataValue({ Id = CurrentRun.Hero.ObjectId, WeaponName = weaponName, Property = "Cooldown" }) or 0
+	if cooldown > 0 then
+		local duration = nil
+		if EffectData[triggerArgs.EffectName] and EffectData[triggerArgs.EffectName].EffectData and EffectData[triggerArgs.EffectName].EffectData.Duration then
+			cooldown = cooldown - EffectData[triggerArgs.EffectName].EffectData.Duration 
+		else
+			cooldown = cooldown - GetEffectDataValue({ WeaponName = weaponName, EffectName = triggerArgs.EffectName, Property = "Duration"})
+		end
+	end
+	local totalWait = math.max(chargeTime * minCharge, cooldown )
+	waitUnmodified(totalWait + 0.06 )
+	RemoveSpecialLockLayer( weaponName, "Disable"..triggerArgs.EffectName )
+end
+
+function BlinkTriggerLockApply( triggerArgs )	
+	AddBlinkLockLayer( "Disable"..triggerArgs.EffectName )	
+end
+
+function BlinkTriggerLockClear( triggerArgs )
+	RemoveBlinkLockLayer( "Disable"..triggerArgs.EffectName )
+end
+
 function LobDisableTriggerLockApply( triggerArgs )	
 	AddLobWeaponLockLayer( "Disable" )	
 end
@@ -561,6 +621,40 @@ function RemoveLobWeaponLockLayer( tag )
 		SetWeaponProperty({ WeaponName = "WeaponLob", DestinationId = CurrentRun.Hero.ObjectId, Property = "LockTriggerForFireOnRelease", Value = false})
 		SetWeaponProperty({ WeaponName = "WeaponLob", DestinationId = CurrentRun.Hero.ObjectId, Property = "AllowMultiFireRequest", Value = false})
 		SetWeaponProperty({ WeaponName = "WeaponLob", DestinationId = CurrentRun.Hero.ObjectId, Property = "CanCancelDisables", Value = false})	
+	end
+end
+
+function AddSpecialLockLayer( weaponName, tag )
+	if not SessionMapState.SpecialLock[weaponName] then
+		SessionMapState.SpecialLock[weaponName] = {}
+	end
+	if not SessionMapState.SpecialLock[weaponName][tag] then
+		SessionMapState.SpecialLock[weaponName][tag] = true
+	end
+	SetWeaponProperty({ WeaponName = weaponName, DestinationId = CurrentRun.Hero.ObjectId, Property = "LockTriggerForFireOnRelease", Value = true})
+end
+
+function RemoveSpecialLockLayer( weaponName, tag )
+	if not SessionMapState.SpecialLock[weaponName] then
+		return
+	end
+	SessionMapState.SpecialLock[weaponName][tag] = nil
+	if IsEmpty(SessionMapState.SpecialLock[weaponName]) then
+		SetWeaponProperty({ WeaponName = weaponName, DestinationId = CurrentRun.Hero.ObjectId, Property = "LockTriggerForFireOnRelease", Value = false})
+	end
+end
+
+function AddBlinkLockLayer( tag )
+	if not SessionMapState.BlinkLock[tag] then
+		SessionMapState.BlinkLock[tag] = true
+	end
+	SetWeaponProperty({ WeaponName = "WeaponBlink", DestinationId = CurrentRun.Hero.ObjectId, Property = "LockTriggerForFireOnRelease", Value = true})
+end
+
+function RemoveBlinkLockLayer( tag )
+	SessionMapState.BlinkLock[tag] = nil
+	if IsEmpty(SessionMapState.BlinkLock) then
+		SetWeaponProperty({ WeaponName = "WeaponBlink", DestinationId = CurrentRun.Hero.ObjectId, Property = "LockTriggerForFireOnRelease", Value = false})
 	end
 end
 

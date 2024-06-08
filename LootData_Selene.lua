@@ -29,7 +29,7 @@ LootSetData.Selene =
 		AnimOffsetZ = 100,
 		ResourceCosts =
 		{
-			Money = 150,
+			Money = 100,
 		},
 		ConfirmSound = "/Leftovers/Menu Sounds/EmoteThoughtful",
 		
@@ -1803,7 +1803,7 @@ LootSetData.Selene =
 				},
 				PreEventFunctionName = "SpellDropInteractPresentation", PreEventFunctionArgs = { PickupWait = 1.0 },
 				{ Cue = "/VO/Selene_0005",
-					Text = "I shall shine now for you, little star." },
+					Text = "I shine only for you now, little star." },
 			},
 			SeleneChat03 =
 			{

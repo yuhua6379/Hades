@@ -143,8 +143,8 @@ function UseFamiliar( familiar, args, user )
 	UnequipFamiliar( user, args )
 	EquipFamiliar( familiar, { FamiliarName = familiar.Name, EnableAI = true, } )
 	UpdateFamiliarKits()
+	SelectCodexEntry( familiar.Name )
 	EquipFamiliarPresentation( familiar )
-	UpdateFamiliarIconUses()
 	wait( 1.0 )
 	RemoveInteractBlock( kit, "UseFamiliar" )
 	RemoveInteractBlock( familiar, "UseFamiliar" )
@@ -219,7 +219,7 @@ function EquipFamiliar( familiar, args )
 	end
 
 	GameState.EquippedFamiliar = args.FamiliarName
-	GameState.FamiliarUses = 1 + GetFamiliarBonusUses( GameState.EquippedFamiliar )
+	GameState.FamiliarResourceSpawnChance = FamiliarData[GameState.EquippedFamiliar].BaseResourceSpawnChance + GetFamiliarBonusResourceSpawnChance( GameState.EquippedFamiliar )
 	MapState.FamiliarUnit = familiar
 
 	if familiar ~= nil then
@@ -437,22 +437,22 @@ function ReenableFamiliar( familiar, args )
 	SetupAI( familiar, args )
 end
 
-function GetFamiliarBonusUses( familiarName )
-	local bonusUses = 0
+function GetFamiliarBonusResourceSpawnChance( familiarName )
+	local bonusChance = 0
 	for unlockName, value in pairs( GameState.FamiliarUpgrades ) do
 		local shopItemData = FamiliarShopItemData[unlockName]
-		if shopItemData ~= nil and shopItemData.FamiliarName == familiarName and shopItemData.BonusUses then
-			bonusUses = bonusUses + shopItemData.BonusUses
+		if shopItemData ~= nil and shopItemData.FamiliarName == familiarName and shopItemData.BonusResourceSpawnChance then
+			bonusChance = bonusChance + shopItemData.BonusResourceSpawnChance
 		end
 	end
 	local familiarData = FamiliarData[familiarName]
 	local familiarStatus = GameState.FamiliarStatus[familiarName]
 	if familiarStatus ~= nil then
 		if familiarStatus.RestTicks > familiarData.TickForRested then
-			bonusUses = bonusUses + familiarData.RestBonusUses
+			bonusChance = bonusChance + familiarData.RestBonusResourceSpawnChance
 		end
 	end
-	return bonusUses
+	return bonusChance
 end
 
 function FrogFollowAI( familiar, followId )
@@ -684,10 +684,9 @@ end
 
 function CatFamiliarMoveToRandomLocation( familiar, aiData, args )
 	args = args or {}
-	local spawnPointIds = GetIds({ Name = "SpawnPoints" })
+	local spawnPointIds = GetClosestIds({ Id = familiar.ObjectId, DestinationName = "SpawnPoints", Distance = aiData.WanderDistance, ScaleY = aiData.WanderDistanceScaleY, RequiredLocationUnblocked = true })
 	RemoveValue( spawnPointIds, familiar.LastSpawnPointId )
 	local randomSpawnPointId = GetRandomValue( spawnPointIds )
-	--local spawnPointId = GetClosest({ Id = CurrentRun.Hero.ObjectId, DestinationNames = "SpawnPoints", Distance = aiData.WanderDistance, ExcludeId = familiar.LastSpawnPointId })
 	familiar.LastSpawnPointId = randomSpawnPointId
 	Move({ Id = familiar.ObjectId, DestinationId = randomSpawnPointId, SuccessDistance = 50 })
 	familiar.AINotifyName = "WithinDistance_"..familiar.Name.."_"..familiar.ObjectId

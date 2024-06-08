@@ -709,6 +709,12 @@
 		DamageTextStartColor = Color.HeraDamageLight,
 		DamageTextColor = Color.HeraDamage,
 		OnDamagedFunctionName = "ProcessDamageShare",
+		CancelArmorSpark = true,
+		CancelArmorUnitShake = true,
+		CancelUnitShake = true,
+		CancelRumble = true,
+		CancelHitSpark = true,
+		CancelUnitHitFlash = true,		
 		Using = "HeraRope",
 		OnApplyFunctionName = "DamageShareApply",
 		OnClearFunctionName = "DamageShareClear",
@@ -960,12 +966,13 @@
 	{
 		Name = "ClearCast",
 		Vfx = "ErisPowerUpFx",
-		ExChargeMultiplier = 0.85,
 		DataProperties = 
 		{
 			CanAffectInvulnerable = true,
 			TimeModifierFraction = 0,
-			OnlyAffectName = "_PlayerUnit"
+			OnlyAffectName = "_PlayerUnit",
+			Amount = 1.5,
+			Duration = 5,
 		},
 		OnApplyFunctionName = "ClearCastApply",
 		OnClearFunctionName = "ClearCastClear"
@@ -1121,7 +1128,118 @@
 			Cancelable = false,
 		}
 	},
+	-- Staff Disables
+	Swing1Disable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
+	Swing2Disable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
+	Swing3Disable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
+	Swing5Disable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
+	SwingDashDisable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
+	Special1Disable =
+	{
+		OnApplyFunctionName = "StaffSpecialTriggerLockApply",
+		OnClearFunctionName = "StaffSpecialTriggerLockClear",
+	},
 
+	-- Dagger Disables
+	-- Swing1Disable, Swing2Disable, Swing5Disable
+	
+	DaggerSpecial1Disable =
+	{
+		OnApplyFunctionName = "DaggerSpecialTriggerLockApply",
+		OnClearFunctionName = "DaggerSpecialTriggerLockClear",
+	},
+	SwingMultiDisable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
+	SwingDoubleDisable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
+	WeaponDaggerThrowEXDisable =
+	{
+		EffectData =
+		{
+			Duration = 16/60,
+			DisableMove = true,
+			DisableRotate = true,
+			DisableAttack = true,
+			RequestTriggerLock = true,
+		},
+		OnApplyFunctionName = "DaggerSpecialTriggerLockApply",
+		OnClearFunctionName = "DaggerSpecialTriggerLockClear",
+	},
+	WeaponDaggerThrowEXDisableCancellable =
+	{
+		EffectData =
+		{
+			Duration = 26/60,
+			DisableMove = true,
+			DisableRotate = true,
+			DisableAttack = true,
+			RequestTriggerLock = true,
+			Cancelable = true,
+		},
+	},
+	WeaponDaggerThrowEXDisableMoveHold =
+	{
+		EffectData =
+		{
+			Duration = 33/60,
+			DisableRotate = true,
+			DisableMove = true,
+			Cancelable = true,
+		},
+	},
+
+	-- Axe Disables
+	-- Swing1Disable, SwingDashDisable, Swing2Disable, Swing3Disable
+	AxeSpinAttackDisable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
+	BigDisable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
+
+	-- Torch Disables
+	TorchSpecialDisable =
+	{
+		OnApplyFunctionName = "TorchSpecialTriggerLockApply",
+		OnClearFunctionName = "TorchSpecialTriggerLockClear",
+	},
+
+	-- Lob Disables
+	Lob1Disable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
 	LobWeaponSpecialDisable = 
 	{ 
 		MaxDuration = 0.12,
@@ -1133,6 +1251,8 @@
           Cancelable = false,
           RequestTriggerLock = true,
         },
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
 	},
 	LobWeaponSpecialDisableCancellable =
 	{
@@ -1144,7 +1264,7 @@
           DisableAttack = true,
           Cancelable = true,
           RequestTriggerLock = true,
-		},		
+		},
 		OnApplyFunctionName = "LobDisableTriggerLockApply",
 		OnClearFunctionName = "LobDisableTriggerLockClear",
 	},
@@ -1158,7 +1278,29 @@
           DisableAttack = false,
           Cancelable = true,
         }
-	}
+	},
+
+	-- Spell Disables
+	LaserDisable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
+	PolymorphCastDisable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
+	SpellHealDisable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
+	WeaponLeapDisable =
+	{
+		OnApplyFunctionName = "BlinkTriggerLockApply",
+		OnClearFunctionName = "BlinkTriggerLockClear",
+	},
 }
 
 WeaponEffectData =

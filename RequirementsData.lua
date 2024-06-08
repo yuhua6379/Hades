@@ -146,6 +146,16 @@ NamedRequirementsData =
 			Value = 2,
 		},
 	},
+	ErisCurseHealthThreshold =
+	{
+		{
+			Path = { "CurrentRun", "Hero", "LastStands" },
+			UseLength = true,
+			Comparison = "<=",
+			Value = 0,
+		},
+		RequiredMaxHealthFraction = 0.5,
+	},
 	HecateFamiliarsInHub =
 	{
 		{
@@ -229,6 +239,10 @@ NamedRequirementsData =
 						"N_PreBoss01", "N_Boss01", "N_PostBoss01",
 						"O_PreBoss01", "O_Boss01", "O_PostBoss01",
 						"P_PreBoss01", "P_Boss01", "P_PostBoss01", },
+		},
+		{
+			Path = { "CurrentRun", "CurrentRoom", "RoomSetName" },
+			IsNone = { "Anomaly" },
 		},
 	},
 
@@ -324,7 +338,7 @@ NamedRequirementsData =
 			HasAny = { "SurfacePenalty" },
 		},
 		{
-			PathTrue = { "GameState", "TextLinesRecord", "MorosGrantsQuestLog" },
+			PathTrue = { "GameState", "TextLinesRecord", "MorosSecondAppearance" },
 		},
 		{
 			PathFalse = { "CurrentRun", "WorldUpgradesAdded", "WorldUpgradeMorosUnlock" },
@@ -342,6 +356,14 @@ NamedRequirementsData =
 		-- RequireQuestsComplete = { "QuestUnlockBountyBoard" },
 		MinRunsSinceAnyTextLines = { TextLines = { "MorosFirstMeeting" }, Count = 2 },
 	},
+
+	UsedTimeSlowAgainstChronos =
+	{
+		{
+			PathTrue = { "GameState", "Flags", "UsedSlowAgainstChronos" },
+		},
+	},
+
 	NarcissusInFields =
 	{
 		{
@@ -477,9 +499,6 @@ NamedRequirementsData =
 			Path = { "GameState", "ClearedUnderworldRunsCache" },
 			Comparison = ">=",
 			Value = 5,
-		},
-		{
-			PathFalse = { "CurrentRun", "SpeechRecord", "/VO/Melinoe_2862" },
 		},
 		NamedRequirements =  { "ShrineUnlocked" },
 	},

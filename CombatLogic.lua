@@ -78,13 +78,13 @@ OnControlPressed{ "Reload",
 
 OnWeaponTriggerRelease{
 	function( triggerArgs )
-
+	
+		local attacker = triggerArgs.OwnerTable
 		local weaponData = GetWeaponData( attacker, triggerArgs.name)
 		if weaponData == nil then
 			return
 		end
 
-		local attacker = triggerArgs.OwnerTable
 		StopWeaponSounds( "TriggerRelease", weaponData.Sounds, attacker )
 
 		CallFunctionName( weaponData.OnWeaponTriggerReleaseFunctionName, attacker, weaponData, triggerArgs )
@@ -1255,6 +1255,8 @@ function DamageEnemy( victim, triggerArgs )
 	if victim.AIEndHealthThreshold ~= nil then
 		if currentHealthFraction <= victim.AIEndHealthThreshold and victim.Health > 0 then
 			AIHealthThresholdReached(victim)
+		elseif currentHealthFraction <= victim.AIEndHealthThreshold and victim.Phases ~= nil and victim.CurrentPhase < victim.Phases then
+			SetThreadWait(victim.AIThreadName, 0.01)
 		end
 		if victim.Health <= 0 then
 			killWaitUntilThreads(victim.DumbFireThreadName)
@@ -1863,7 +1865,7 @@ function CheckLastStand( victim, triggerArgs )
 		CallFunctionName( functionData.Name, functionData.FunctionArgs, triggerArgs )
 	end
 
-	wait( 1.0, RoomThreadName )
+	wait( 1.5, RoomThreadName )
 
 
 	SetPlayerVulnerable("LastStand")
@@ -2047,7 +2049,7 @@ function DoReaction( victim, reaction, triggerArgs )
 		if reaction.Damage ~= nil and triggerArgs.CollideeTable ~= CurrentRun.Hero and triggerArgs.TriggeredByTable ~= CurrentRun.Hero then
 			local damageArgs = { AttackerName = triggerArgs.AttackerName, WeaponName = "BaseCollision", Angle = triggerArgs.SourceAngle + math.pi, DamageAmount = triggerArgs.Velocity * reaction.Damage.PerVelocity, Silent = false, PureDamage = true } 
 			Damage( victim, damageArgs )
-			WallHitPresentation( victim, damageArgs )
+			--WallHitPresentation( victim, damageArgs )
 		end
 	end
 
@@ -2573,37 +2575,39 @@ OnWeaponFired{
 				SetWeaponProperty({ WeaponName = rushWeaponName, DestinationId = CurrentRun.Hero.ObjectId, Property = "Enabled", Value = true })
 			end
 		end
-		thread( DoCameraMotion, weaponData.FireCameraMotion )
-		thread( DoWeaponScreenshake, weaponData, "FireScreenshake", { AttackerId = CurrentRun.Hero.ObjectId, SourceProjectile = triggerArgs.ProjectileName })
+		if not weaponData.RequireProjectilesForPresentation or ( triggerArgs.NumProjectiles and triggerArgs.NumProjectiles > 0 ) then
+			thread( DoCameraMotion, weaponData.FireCameraMotion )
+			thread( DoWeaponScreenshake, weaponData, "FireScreenshake", { AttackerId = CurrentRun.Hero.ObjectId, SourceProjectile = triggerArgs.ProjectileName })
 
-		if triggerArgs.IsPerfectCharge then
-			CreateAnimation({ Name = "PerfectShotShroud", UseScreenLocation = true, OffsetX = ScreenCenterX, OffsetY = ScreenCenterY, GroupName = "Combat_UI_World_Add" })
-			CreateAnimation({ Name = "PerfectShotShroud_Dark", UseScreenLocation = true, OffsetX = ScreenCenterX, OffsetY = ScreenCenterY, GroupName = "Combat_UI_World" })
-		end
 
-		if weaponData.Sounds ~= nil then
-			if weaponData.Sounds.FireSounds ~= nil then
-				if triggerArgs.IsPerfectCharge then
-					DoWeaponSounds( weaponData.Sounds.FireSounds.PerfectChargeSounds, triggerArgs.OwnerTable, weaponData )
-				else
-					DoWeaponSounds( weaponData.Sounds.FireSounds.ImperfectChargeSounds, triggerArgs.OwnerTable, weaponData )
+			if triggerArgs.IsPerfectCharge then
+				CreateAnimation({ Name = "PerfectShotShroud", UseScreenLocation = true, OffsetX = ScreenCenterX, OffsetY = ScreenCenterY, GroupName = "Combat_UI_World_Add" })
+				CreateAnimation({ Name = "PerfectShotShroud_Dark", UseScreenLocation = true, OffsetX = ScreenCenterX, OffsetY = ScreenCenterY, GroupName = "Combat_UI_World" })
+			end
+
+			if weaponData.Sounds ~= nil then
+				if weaponData.Sounds.FireSounds ~= nil then
+					if triggerArgs.IsPerfectCharge then
+						DoWeaponSounds( weaponData.Sounds.FireSounds.PerfectChargeSounds, triggerArgs.OwnerTable, weaponData )
+					else
+						DoWeaponSounds( weaponData.Sounds.FireSounds.ImperfectChargeSounds, triggerArgs.OwnerTable, weaponData )
+					end
+				end
+			
+				if weaponData.Sounds.LowAmmoFireSounds ~= nil and triggerArgs.Ammo < weaponData.LowAmmoSoundThreshold then
+					DoWeaponSounds( weaponData.Sounds.LowAmmoFireSounds, triggerArgs.OwnerTable, weaponData )
+				elseif MapState.WeaponCharge and MapState.WeaponCharge[triggerArgs.name] and MapState.WeaponCharge[triggerArgs.name] > 0 then
+					DoWeaponSounds( weaponData.Sounds.FireStageSounds, triggerArgs.OwnerTable, weaponData )
+				elseif weaponData.Sounds.FireSounds ~= nil then
+					DoWeaponSounds( weaponData.Sounds.FireSounds, triggerArgs.OwnerTable, weaponData )
 				end
 			end
-			
-			if weaponData.Sounds.LowAmmoFireSounds ~= nil and triggerArgs.Ammo < weaponData.LowAmmoSoundThreshold then
-				DoWeaponSounds( weaponData.Sounds.LowAmmoFireSounds, triggerArgs.OwnerTable, weaponData )
-			elseif MapState.WeaponCharge and MapState.WeaponCharge[triggerArgs.name] and MapState.WeaponCharge[triggerArgs.name] > 0 then
-				DoWeaponSounds( weaponData.Sounds.FireStageSounds, triggerArgs.OwnerTable, weaponData )
-			elseif weaponData.Sounds.FireSounds ~= nil then
-				DoWeaponSounds( weaponData.Sounds.FireSounds, triggerArgs.OwnerTable, weaponData )
-			end
+			StopWeaponSounds( "Fired", weaponData.Sounds, triggerArgs.OwnerTable )
+
+			thread( DoWeaponFireSimulationSlow, weaponData )
+			thread( DoWeaponFireRumble, weaponData, projectileData )
+			thread( DoWeaponFireRadialBlur, weaponData )
 		end
-		StopWeaponSounds( "Fired", weaponData.Sounds, triggerArgs.OwnerTable )
-
-		thread( DoWeaponFireSimulationSlow, weaponData )
-		thread( DoWeaponFireRumble, weaponData, projectileData )
-		thread( DoWeaponFireRadialBlur, weaponData )
-
 		if weaponData.OnFireCrowdReaction ~= nil then
 			thread( CrowdReactionPresentation, weaponData.OnFireCrowdReaction )
 		end
@@ -2770,6 +2774,10 @@ OnHit{
 	function( triggerArgs )
 		
 		local victim = triggerArgs.Victim
+		if victim == nil then
+			DebugAssert({ Condition = false, Text = "OnHit triggered with no Victim", Owner = "Gavin" })
+			return
+		end
 		if victim.ExclusiveOnHitFunctionName ~= nil then
 			CallFunctionName( victim.ExclusiveOnHitFunctionName, victim, triggerArgs, victim.ExclusiveOnHitFunctionArgs )
 			return
@@ -2848,18 +2856,22 @@ OnHit{
 					return
 				end
 
-				if HeroHasTrait( "ReserveManaHitShieldBoon" ) then
+				if HeroHasTrait( "ReserveManaHitShieldBoon" )  then
 					-- Player hit
-					local tempInvulnerabilityTrait = nil
-					for k, currentTrait in pairs( CurrentRun.Hero.Traits ) do
-						if currentTrait.Name == "ReserveManaHitShieldBoon" and IsOnlyInvulnerableSource("ManaReserveTraitInvulnerability") and CurrentRun.Hero.ActiveEffects.ReserveManaInvulnerability then
-							tempInvulnerabilityTrait = currentTrait
+					if (MapState.DaggerBlockShieldActive and HeroHasTrait("DaggerBlockAspect")) then
+						triggerArgs.InvulnerablePassthrough = true
+					else
+						local tempInvulnerabilityTrait = nil
+						for k, currentTrait in pairs( CurrentRun.Hero.Traits ) do
+							if currentTrait.Name == "ReserveManaHitShieldBoon" and IsOnlyInvulnerableSource("ManaReserveTraitInvulnerability") and CurrentRun.Hero.ActiveEffects.ReserveManaInvulnerability then
+								tempInvulnerabilityTrait = currentTrait
+							end
 						end
-					end
 
-					if tempInvulnerabilityTrait ~= nil and IsTraitActive( tempInvulnerabilityTrait ) then
-						triggerArgs.IsInvulnerable = true
-						thread( VulnerableAfterDelay, 1, "ReserveManaInvulnerability", "ManaReserveTraitInvulnerability" )
+						if tempInvulnerabilityTrait ~= nil and IsTraitActive( tempInvulnerabilityTrait ) then
+							triggerArgs.IsInvulnerable = true
+							thread( VulnerableAfterDelay, 1, "ReserveManaInvulnerability", "ManaReserveTraitInvulnerability" )
+						end
 					end
 				end
 			end
@@ -2880,8 +2892,7 @@ OnHit{
 		if victim == CurrentRun.Hero 
 			and triggerArgs.DamageAmount ~= nil 
 			and triggerArgs.DamageAmount > 0 
-			and not triggerArgs.IsInvulnerable 
-			and not triggerArgs.InvulnerableFromCoverage then
+			and ( triggerArgs.InvulnerablePassthrough or ( not triggerArgs.IsInvulnerable and not triggerArgs.InvulnerableFromCoverage)) then
 			if MapState.DaggerBlockShieldActive and HeroHasTrait("DaggerBlockAspect") then
 				local traitData = GetHeroTrait("DaggerBlockAspect")
 				local functionArgs = traitData.OnWeaponChargeFunctions.FunctionArgs
@@ -2891,6 +2902,7 @@ OnHit{
 				SetAnimation({ Name = "StaffReloadTimerOut", DestinationId = ScreenAnchors.DaggerUI })
 				UpdateDaggerUI()
 				thread( DaggerBlockActivePresentation, traitData, functionArgs.Cooldown )
+				thread( CheckDaggerBlockRecharge, traitData, functionArgs.Cooldown )
 				if functionArgs.InvulnerableDuration then
 					local effectName = functionArgs.InvulnerableEffectName
 					local dataProperties = EffectData[effectName].DataProperties
@@ -2899,7 +2911,7 @@ OnHit{
 				end
 				MapState.DaggerCharges = functionArgs.CritCount
 				MapState.DaggerBlockShieldActive = false
-
+				SetThingProperty({ Property = "AllowDodge", Value = true, DestinationId = CurrentRun.Hero.ObjectId, DataValue = false })
 				return
 			end
 
@@ -3786,7 +3798,7 @@ function GameplaySetElapsedTimeMultiplier( args )
 		SetThingProperty({ Property = "ElapsedTimeMultiplier", Value = currentMultiplier/ startingMultiplier, ValueChangeType = "Multiply", DataValue = false, DestinationNames = { "EnemyTeam" } })
 		for enemyId, enemy in pairs( ActiveEnemies ) do
 			if enemy.IgnoreTimeSlowEffects then
-				SetThingProperty({ Property = "ElapsedTimeMultiplier", Value = 1, ValueChangeType = "Absolute", DataValue = false, DestinationId = enemyId })
+				SetThingProperty({ Property = "ElapsedTimeMultiplier", Value = enemy.SpeedMultiplier or 1.0, ValueChangeType = "Absolute", DataValue = false, DestinationId = enemyId })
 			end
 		end
 		if args.ApplyToPlayerUnits then
@@ -4252,5 +4264,13 @@ function AIHealthThresholdReached( victim )
 	end
 	if victim.ExpireProjectileIdsOnHitStun ~= nil then
 		ExpireProjectiles({ ProjectileIds = victim.ExpireProjectileIdsOnHitStun })
+	end
+	if not IsEmpty( victim.StopAnimationsOnHitStun ) then
+		StopAnimation({ Names = victim.StopAnimationsOnHitStun, DestinationId = victim.ObjectId, PreventChain = true })
+		if victim.FxTargetIdsUsed ~= nil then
+			for id, v in pairs( victim.FxTargetIdsUsed ) do
+				StopAnimation({ Names = victim.StopAnimationsOnHitStun, DestinationId = id, PreventChain = true })
+			end
+		end
 	end
 end
